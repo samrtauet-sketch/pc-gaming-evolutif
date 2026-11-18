@@ -1,4 +1,4 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex"></head><body>
 <title>Mon PC Gaming Évolutif</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -211,8 +211,8 @@ footer{font-size:.8rem;color:var(--muted);display:grid;gap:8px}
   <div class="tbl"><table>
     <thead><tr><th>Carte</th><th class="r">Prix</th><th>Panne décrite</th><th>Réparable ?</th><th>Lien</th></tr></thead>
     <tbody>
-      <tr><td>MSI RX 6700 XT Mech</td><td class="r num">139 €</td><td>L'image s'affiche jusqu'à l'installation des pilotes, les ventilateurs tournent, la panne est inconnue.</td><td><span class="chip bad">Risqué</span> C'est typique d'une mémoire vidéo ou d'un GPU défaillant : réparation par un atelier (micro-soudure), sans garantie. Annonce ancienne.</td><td><a href="https://www.leboncoin.fr/ad/accessoires_informatique/3156527361" target="_blank" rel="noopener">Leboncoin</a></td></tr>
-      <tr><td>Sapphire Pulse RX 6700 XT</td><td class="r num">69 à 80 €</td><td>« Pour pièces / HS », sans précision.</td><td><span class="chip bad">Inconnu</span> À ne prendre que si le vendeur décrit une panne de ventilateur ou de surchauffe.</td><td><a href="https://www.leboncoin.fr/ck/accessoires_informatique/6700-xt/p-2" target="_blank" rel="noopener">Recherche Leboncoin</a></td></tr>
+      <tr><td>MSI RX 6700 XT Mech</td><td class="r num">139 €</td><td>L'image s'affiche jusqu'à l'installation des pilotes, les ventilateurs tournent, la panne est inconnue.</td><td><span class="chip bad">Risqué</span> C'est typique d'une mémoire vidéo ou d'un GPU défaillant : réparation par un atelier (micro-soudure), sans garantie. Annonce ancienne.</td><td><a href="https://www.leboncoin.fr/ad/accessoires_informatique/3156527361" target="_blank" rel="noopener noreferrer">Leboncoin</a></td></tr>
+      <tr><td>Sapphire Pulse RX 6700 XT</td><td class="r num">69 à 80 €</td><td>« Pour pièces / HS », sans précision.</td><td><span class="chip bad">Inconnu</span> À ne prendre que si le vendeur décrit une panne de ventilateur ou de surchauffe.</td><td><a href="https://www.leboncoin.fr/ck/accessoires_informatique/6700-xt/p-2" target="_blank" rel="noopener noreferrer">Recherche Leboncoin</a></td></tr>
     </tbody>
   </table></div>
   <div class="grid3">
@@ -439,9 +439,9 @@ function perf(sel){
   const games=GAMES.map(g=>{const pc=gameFps(g,o),pv=gameFps(g,ps);return {...pc,ps5:g.ps5,ps5m:g.ps5m,ps5eq:pv.fps,pct:Math.round(pc.fps/pv.fps*100)};});
   const per=games.map(x=>x.pct);
   const avg=Math.round(Math.exp(per.reduce((a,b)=>a+Math.log(b),0)/per.length));
-  return {per,avg,games,esport:Math.round(220*(CPUF[cpu.id]||1)*1.22)};
+  return {per,avg,games,esport:Math.round(380*(CPUF[cpu.id]||1)*(cpu.id==="r5800"?1.15/1.22:1))};
 }
-function total(sel,pickup){return Object.values(sel).reduce((s,id)=>s+cost(ITEM[id],pickup),0);}
+function total(sel,pickup){return Object.values(sel).reduce((s,id)=>s+(ITEM[id]?cost(ITEM[id],pickup):0),0);}
 function notes(sel){
   const cpu=ITEM[sel.cpu],gpu=ITEM[sel.gpu],psu=ITEM[sel.psu],mb=ITEM[sel.mb],cs=ITEM[sel.case],ram=ITEM[sel.ram];
   const out=[];
@@ -450,7 +450,7 @@ function notes(sel){
   else out.push(["good",`Alimentation OK : ${psu.watt} W pour environ ${Math.round(gpu.w+cpu.watt+75)} W consommés en jeu.`]);
   if(sel.cool==="stock"&&cpu.cooler===false) out.push(["bad","Ce processeur est vendu sans ventirad : choisis le Thermalright."]);
   if(sel.cool==="stock"&&cpu.cooler==="?") out.push(["warn","Demande au vendeur si le processeur est livré avec son ventirad. Sinon, ajoute le Thermalright (19 €)."]);
-  if(sel.cool==="ax120"&&cpu.cooler===true) out.push(["good","Le Ryzen 3600 d'Épinay est vendu avec un ventirad : tu peux retirer le Thermalright et économiser 19 €."]);
+  if(sel.cool==="ax120"&&cpu.cooler===true) out.push(["good",`${cpu.n} est vendu avec un ventirad : tu peux retirer le Thermalright et économiser 19 € (garde-le si tu veux un PC plus silencieux).`]);
   if(cpu.id==="r5800") out.push(["warn","5800X3D : 115 W en charge. Le Thermalright suffit tout juste, un ventirad double tour (~45 €) serait mieux. Vérifie que le BIOS de la carte mère est à jour."]);
   if((mb.pcie3||cpu.pcie3)&&gpu.x8) out.push(["warn",`${gpu.n} en PCIe 3.0 (${cpu.pcie3?"Ryzen 5 5500":"carte mère A520"}) : environ 4 % de perf en moins.`]);
   if(sel.cool==="stock"&&cpu.src!=="new"&&sel.paste==="inc") out.push(["bad","Ventirad d'occasion réutilisé : ajoute de la pâte thermique neuve (TF7, ~8 €), l'ancienne est sèche."]);
@@ -462,7 +462,6 @@ function notes(sel){
   if(cs.id==="e302"&&gpu.w>=250&&sel.fans==="nofan") out.push(["warn","Carte de 250 W ou plus dans l'Elite 302 : ajoute 3 ventilateurs (17 €) pour évacuer l'air chaud."]);
   if(cs.id==="forge"&&sel.fans==="tlc") out.push(["warn","Le Forge 120A a déjà 6 ventilateurs : les 3 en plus sont inutiles."]);
   if(gpu.risk) out.push(["bad",`${gpu.n} : ${gpu.risk}. Paiement sécurisé obligatoire.`]);
-  if(cpu.id==="r3600d"||cpu.id==="r3600e"){}
   if(ram.risk) out.push(["bad",`RAM : ${ram.risk}.`]);
   else if(ram.ask) out.push(["warn",ram.ask]);
   if(ram.dimm) out.push(["warn","RAM de PC fixe obligatoire : barrette DIMM d'environ 13 cm, 288 broches. Sur l'étiquette, « PC4-…-U » = PC fixe ✔, « …-S » ou « SODIMM » = portable ✘ (7 cm, ne rentre pas), « …-R » ou « ECC » = serveur ✘."]);
@@ -572,7 +571,8 @@ PRESETS.forEach(p=>{
 });
 /* Notes gaming : puissance /10 et rapport prix/puissance /10 (le meilleur de sa catégorie = 10) */
 const PW={a520:6,soyo:7,ds3h:8.5,r16c:7,r16m:7,r16n:7.5,r32h:8.5,r32o:9,s500n:6.5,s1tn:9,s512v:6.5,s512s:6,s1tc:9,s1tl:9,cx550:6,a650:7.5,cx750:9,e302:7,forge:9};
-function power(i){ if(i.idx) return Math.min(10,i.idx/16.5); if(i.cpuF) return Math.min(10,i.cpuF/1.5*10); return PW[i.id]; }
+const ps5pct=i=>Math.round((REL[i.id]?REL[i.id][1]:i.idx*0.88)/PS5.rel[1]*100);
+function power(i){ if(i.idx) return Math.min(10,ps5pct(i)/16.5); if(i.cpuF) return Math.min(10,i.cpuF/1.5*10); return PW[i.id]; }
 CATS.forEach(c=>{
   const sc=c.items.filter(i=>power(i)!=null);
   const raw=sc.map(i=>power(i)/cost(i,false)); const mx=Math.max(...raw);
@@ -598,7 +598,7 @@ CATS.forEach(c=>{
     if(i.cooler===true) chips.push(`<span class="chip">ventirad inclus</span>`);
     const scores=i.pw!=null?`<div class="scores">${scoreRow("Puissance",i.pw)}${scoreRow("Prix / puissance",i.val)}</div>`:"";
     const lines=[];
-    if(i.idx) lines.push(`${i.idx} % d'une PS5 · ${i.vram} Go de mémoire vidéo · ${i.w} W`);
+    if(i.idx) lines.push(`≈ ${ps5pct(i)} % de la puissance d'une PS5 en 1440p · ${i.vram} Go de mémoire vidéo · ${i.w} W`);
     if(i.where) lines.push(`Où : ${i.where}${i.km?` (≈ ${i.km} km de Vincennes)`:""}`);
     if(i.age) lines.push(`Mise en ligne il y a ${i.age}`);
     if(i.seller) lines.push(`Vendeur : ${i.seller}`);
@@ -608,7 +608,7 @@ CATS.forEach(c=>{
     if(i.note) lines.push(i.note);
     if(i.risk) lines.push(`<span class="lo">⚠ ${i.risk}</span>`);
     if(i.ask) lines.push(i.ask);
-    if(i.url) lines.push(`<a href="${i.url}" target="_blank" rel="noopener">Ouvrir l'annonce ↗</a>`);
+    if(i.url) lines.push(`<a href="${i.url}" target="_blank" rel="noopener noreferrer">Ouvrir l'annonce ↗</a>`);
     d.dataset.cat=c.key; d.dataset.id=i.id;
     d.innerHTML=`<button type="button" class="pick" data-cat="${c.key}" data-id="${i.id}" aria-pressed="false"><span class="nm">${i.n}</span>
       <span class="pr"><strong>${i.src==="none"?"0 €":eur(cost(i,false))}</strong> <span class="small muted">${i.src==="none"?"":"livré"}</span></span>
@@ -641,7 +641,7 @@ function render(){
   document.getElementById("t-sub").textContent= (pk? `Avec main propre en Île-de-France. Tout en livraison : ${eur(tl)}` : `Tout livré, frais inclus. Avec main propre en Île-de-France : ${eur(total(sel,true))}`)+` · dont PC : ${eur(t-periSum)}, périphériques : ${eur(periSum)}`;
   document.getElementById("t-perf").textContent=p.avg+" %";
   document.getElementById("t-bar").style.width=Math.min(100,p.avg/170*100)+"%";
-  document.getElementById("t-ratio").textContent=`${(t/p.avg).toLocaleString("fr-FR",{maximumFractionDigits:2})} € par point de perf · Valorant / CS2 : environ ${p.esport} % (la PS5 est plafonnée à 120 images/s)`;
+  document.getElementById("t-ratio").textContent=`${(t/p.avg).toLocaleString("fr-FR",{maximumFractionDigits:2})} € par point de perf · Valorant : ≈ ${p.esport} fps avec ce processeur (PS5 : 120 fps max)`;
   document.querySelectorAll("[data-res]").forEach(b=>b.classList.toggle("on",+b.dataset.res===VIEW.res));
   document.getElementById("t-games").innerHTML=GAMES.map((g,k)=>{
     const x=p.games[k], scale=Math.max(x.fps,x.ps5)*1.15;
@@ -688,10 +688,10 @@ markPreset(); render(); renderTable();
 const qEl=document.getElementById("ai-q"),goEl=document.getElementById("ai-go"),stopEl=document.getElementById("ai-stop"),outEl=document.getElementById("ai-out");
 let ctl=null;
 function catalogue(){
-  return CATS.map(c=>c.label+" :\n"+c.items.map(i=>`- ${i.id} | ${i.n} | ${i.src==="none"?"0":cost(i,false).toFixed(2)} € livré${i.idf?` | ${i.price} € en main propre près de Vincennes`:""}${i.idx?` | ${i.idx} % PS5, ${i.vram} Go, ${i.w} W`:""}${i.cpuF?` | facteur CPU ${i.cpuF}, ${i.watt} W, ventirad ${i.cooler===true?"inclus":i.cooler===false?"non":"?"}`:""}${i.watt&&!i.cpuF?` | ${i.watt} W`:""}${i.gb?` | ${i.gb} Go`:""}${i.risk?` | RISQUE : ${i.risk}`:""}${i.ask?` | ${i.ask}`:""} | ${i.where||""}`).join("\n")).join("\n\n");
+  return CATS.map(c=>c.label+" :\n"+c.items.map(i=>`- ${i.id} | ${i.n} | ${i.src==="none"?"0":cost(i,false).toFixed(2)} € livré${i.idf?` | ${i.price} € en main propre près de Vincennes`:""}${i.idx?` | ≈ ${ps5pct(i)} % d'une PS5 en 1440p, ${i.vram} Go, ${i.w} W`:""}${i.cpuF?` | facteur CPU ${i.cpuF}, ${i.watt} W, ventirad ${i.cooler===true?"inclus":i.cooler===false?"non":"?"}`:""}${i.watt&&!i.cpuF?` | ${i.watt} W`:""}${i.gb?` | ${i.gb} Go`:""}${i.risk?` | RISQUE : ${i.risk}`:""}${i.ask?` | ${i.ask}`:""} | ${i.where||""}`).join("\n")).join("\n\n");
 }
 async function ask(q){
-  q=(q||"").trim(); if(!q) return;
+  q=(q||"").trim().slice(0,1500); if(!q||ctl) return;
   const sample=window.claude?await window.claude.use("sample"):null;
   if(!sample){outEl.textContent="L'assistant n'est pas disponible ici. Ouvre la page dans claude.ai.";return;}
   const cur=Object.entries(sel).map(([k,id])=>`${k}: ${ITEM[id].n}`).join(", ");
