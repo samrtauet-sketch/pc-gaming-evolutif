@@ -1,4 +1,4 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex"></head><body>
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src 'self' https://*.trycloudflare.com; base-uri 'none'; form-action 'none'; object-src 'none'"><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex"></head><body>
 
 <title>Mon PC Gaming Évolutif</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -390,7 +390,7 @@ details.why p{margin-top:8px}
 </div>
 <button type="button" class="chat-fab" id="chat-fab" aria-expanded="false" aria-controls="chat">💬 Poser une question</button>
 <div class="chat" id="chat" role="dialog" aria-label="Chat avec l'assistant PC" hidden>
-  <div class="chat-head"><strong>Assistant PC</strong><span class="small muted sp">connaît les offres et ta config</span><button type="button" id="chat-clear" title="Nouvelle conversation" aria-label="Nouvelle conversation">↺</button><button type="button" id="chat-x" aria-label="Fermer le chat">✕</button></div>
+  <div class="chat-head"><strong>Assistant PC</strong><span class="small muted sp" id="chat-mode">connaît les offres et ta config</span><button type="button" id="chat-clear" title="Nouvelle conversation" aria-label="Nouvelle conversation">↺</button><button type="button" id="chat-x" aria-label="Fermer le chat">✕</button></div>
   <div class="chat-log" id="chat-log" aria-live="polite"><div class="msg a">Bonjour ! Je suis l'IA du site : je réponds instantanément en calculant avec toutes les annonces, les FPS et le vérificateur de compatibilité, sans compte ni Internet. Essaie « meilleure config sous 600 € » ou « RX 6800 ou RTX 3070 ? ».</div></div>
   <div class="chat-sugg">
     <button type="button" data-cq="Ma config est-elle compatible ? Y a-t-il un problème ?">Compatible ?</button>
@@ -1004,6 +1004,33 @@ function errMsg(e){
 }
 let samplePromise=null;
 function getSample(){ if(!samplePromise) samplePromise=window.claude?window.claude.use("sample"):Promise.resolve(null); return samplePromise; }
+/* Claude via le serveur du PC (tunnel Cloudflare). Sur GitHub Pages, l'adresse du tunnel est lue dans serveur.json. */
+let remoteP=null;
+const TUNNEL=/^https:\/\/[a-z0-9-]+\.trycloudflare\.com$/;
+function getRemote(){
+  if(remoteP) return remoteP;
+  remoteP=(async()=>{
+    if(window.claude||location.protocol==="file:") return null;
+    let base="";
+    if(!/\.trycloudflare\.com$/.test(location.hostname)&&location.hostname!=="127.0.0.1"){
+      const r=await fetch("serveur.json",{cache:"no-store",signal:AbortSignal.timeout(5000)}); if(!r.ok) return null;
+      const j=await r.json(); if(!j||!TUNNEL.test(j.url)) return null; base=j.url;
+    }
+    const h=await fetch(base+"/api/sante",{cache:"no-store",signal:AbortSignal.timeout(6000)}); if(!h.ok) return null;
+    const s=await h.json(); return s&&s.ok?base:null;
+  })().catch(()=>null);
+  return remoteP;
+}
+async function remoteAsk(base,q,local,hist,signal){
+  const sl=Object.entries(sel).map(([k,id])=>`${k}: ${ITEM[id].n}`).join(", ");
+  const C=compat(sel).filter(x=>x[0]!=="ok").map(x=>`${x[1]} : ${x[2]}`).join(" | ")||"aucun problème";
+  const body={q:q.slice(0,600),local:(local||"").slice(0,3000),hist:hist.slice(-6).map(t=>({role:t.role,content:t.content.slice(0,1500)})),cat:catalogue().slice(0,40000),
+    sel:`${sl}\nTotal livré : ${total(sel,false).toFixed(2)} € · perf moyenne : ${perf(sel).avg} % d'une PS5.\nVérificateur : ${C}`.slice(0,3000)};
+  const r=await fetch(base+"/api/ia",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),signal});
+  let j={}; try{j=await r.json();}catch(e){}
+  if(!r.ok||typeof j.texte!=="string") throw new Error(j.erreur||"Claude indisponible.");
+  return j.texte;
+}
 
 
 /* ===== IA du site : moteur local, sans Internet ni compte =====
@@ -1174,7 +1201,15 @@ let ctl=null;
 goEl.addEventListener("click",async()=>{
   if(ctl) return;
   const sample=await getSample();
-  if(!sample){outEl.textContent=AI.analyse()+"\n\n(Analyse calculée par l'IA du site. Sur claude.ai, Claude fait une analyse rédigée en plus.)";return;}
+  if(!sample){
+    const base=await getRemote(), loc=AI.analyse();
+    if(base===null){outEl.textContent=loc+"\n\n(Analyse calculée par l'IA du site : le serveur Claude est éteint.)";return;}
+    ctl=new AbortController(); goEl.disabled=true; stopEl.disabled=false; outEl.textContent="Claude analyse les offres… (jusqu'à une minute)";
+    try{ outEl.textContent=await remoteAsk(base,"Analyse toutes les annonces : 1. les 5 meilleures affaires ; 2. les annonces risquées et pourquoi ; 3. les problèmes de ma sélection et comment les corriger ; 4. une config conseillée sous 650 € livrée, pièce par pièce, avec son total.",loc,[],ctl.signal); }
+    catch(e){ outEl.textContent=loc+"\n\n(Claude : "+(e.name==="AbortError"?"arrêté":e.message)+" — analyse calculée par l'IA du site.)"; }
+    finally{goEl.disabled=false;stopEl.disabled=true;ctl=null;}
+    return;
+  }
   ctl=new AbortController(); goEl.disabled=true; stopEl.disabled=false; outEl.textContent="Analyse en cours… (réflexion, ça peut prendre jusqu'à une minute)";
   const prompt=`${RULES}\n\n${context()}\n\nTÂCHE : analyse toutes les annonces. Donne, en sections courtes avec titres :\n1. Les 5 meilleures affaires (prix vs cote, fiabilité du vendeur).\n2. Les annonces suspectes ou risquées et pourquoi (prix anormal, format RAM douteux, vendeur sans avis, hors Île-de-France).\n3. Les problèmes de la sélection actuelle et comment les corriger.\n4. Une config conseillée sous 650 € livrée, pièce par pièce, avec son total.`;
   try{
@@ -1204,6 +1239,17 @@ async function ask(q){
   q=(q||"").trim().slice(0,1500); if(!q||cctl) return;
   bubble("u",q); cq.value="";
   let r; try{ r=AI.answer(q); }catch(e){ r={text:"Je n'ai pas réussi à calculer la réponse ("+e.message+")."}; }
+  const base=await getRemote();
+  if(base!==null){
+    const d=bubble("a","Claude réfléchit…"); cctl=new AbortController(); send.disabled=true;
+    let t;
+    try{ t=await remoteAsk(base,q,r.text,turns,cctl.signal); }
+    catch(e){ t=r.text+"\n\n(Claude indisponible : "+(e.name==="AbortError"?"arrêté":e.message)+" Réponse calculée par l'IA du site.)"; d.classList.add("err"); }
+    finally{ cctl=null; send.disabled=false; }
+    d.textContent=t; if(r.sel) addLoad(d,r.sel); addCopy(d,t);
+    turns.push({role:"user",content:q},{role:"assistant",content:t}); if(turns.length>12) turns=turns.slice(-12);
+    log.scrollTop=log.scrollHeight; return;
+  }
   const d=bubble("a",r.text);
   if(r.sel) addLoad(d,r.sel);
   addCopy(d,r.text);
@@ -1231,6 +1277,7 @@ async function claudeAsk(q){
 document.getElementById("chat-form").addEventListener("submit",e=>{e.preventDefault();ask(cq.value);});
 cq.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();ask(cq.value);}});
 document.querySelectorAll("[data-cq]").forEach(b=>b.addEventListener("click",()=>ask(b.dataset.cq)));
+getRemote().then(b=>{ if(b!==null){ document.getElementById("chat-mode").textContent="Claude en ligne · questions sur le PC uniquement"; bubble("a","Claude est connecté : pose ta question en langage naturel (uniquement sur le PC, les pièces et les annonces)."); } });
 })();
 </script>
 </body></html>
