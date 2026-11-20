@@ -250,7 +250,7 @@ details.why p{margin-top:8px}
       <div class="viewctl">
         <span class="eyebrow">Calcul des FPS</span>
         <div class="seg"><button type="button" data-res="0">1080p</button><button type="button" data-res="1">1440p</button></div>
-        <label class="toggle" for="upsc"><input type="checkbox" id="upsc"> <span>Upscaling FSR / DLSS Qualité (la PS5 upscale aussi)</span></label>
+        <label class="toggle" for="upsc"><input type="checkbox" id="upsc" checked> <span>Upscaling DLSS / FSR Qualité (activé par défaut : rendu quasi identique, plus d'images/s ; la PS5 upscale aussi)</span></label>
       </div>
       <div class="meter">
         <div class="meter-top"><span class="eyebrow">Puissance moyenne (PS5 = 100 %)</span><strong class="num" id="t-perf">–</strong></div>
@@ -444,7 +444,7 @@ const GAMES=[
  {n:"Spider-Man 2",ref:[86,65],cpu:98,x3d:1.25,vr:[9.5,10.5],ram32:1.05,ps5:60,ps5m:"mode Performance, ≈ 1080-1440p dynamique"},
  {n:"Alan Wake 2",ref:[56,38],cpu:140,x3d:1.1,nv:1.05,vr:[7.5,8.5],ps5:60,ps5m:"mode Performance, ≈ 870p interne + FSR"}
 ];
-let VIEW={res:1,up:false}; /* res : 0 = 1080p, 1 = 1440p */
+let VIEW={res:1,up:true}; /* res : 0 = 1080p, 1 = 1440p */
 function gameFps(g,o){
   const r=VIEW.res, upF=VIEW.up?(r?1.42:1.33):1;
   let gf=g.ref[r]*o.rel[r]/100*upF;
@@ -513,8 +513,8 @@ const PRESETS=[
  {name:"RTX 3070 sécurisée",tag:"Vendeur 5/5 (258 avis), près de Vincennes",sel:{cpu:"r5600x",mb:"b550mk",ram:"r16l",gpu:"g3070",ssd:"s512v",psu:"a650",case:"e302",cool:"ax120",fans:"nofan",wifi:"nowifi"}},
  {name:"Neuf au maximum",tag:"CPU, GPU, SSD neufs et garantis",sel:{cpu:"r5500n",mb:"b550mk",ram:"r16l",gpu:"g7600n",ssd:"s500n",psu:"cx550",case:"e302",cool:"stock",fans:"nofan",wifi:"nowifi"}},
  {name:"RX 6700 XT Issy",tag:"Vendeur 5/5 (64 avis), annonce du jour",sel:{cpu:"r5600x",mb:"b550mk",ram:"r16l",gpu:"g6700xti",ssd:"s500n",psu:"a650",case:"e302",cool:"ax120",fans:"nofan",wifi:"nowifi"}},
- {name:"RX 6800 XT",tag:"1440p ultra",sel:{cpu:"r5600x",mb:"ds3h",ram:"r32k",gpu:"g6800xt",ssd:"s1tc",psu:"cx750",case:"e302",cool:"ax120",fans:"tlc",wifi:"nowifi"}},
- {name:"Maximum AM4",tag:"5800X3D + RX 6800 XT",sel:{cpu:"r5800",mb:"ds3h",ram:"r32k",gpu:"g6800xt",ssd:"s1tc",psu:"cx750",case:"e302",cool:"ax120",fans:"tlc",wifi:"nowifi"}}
+ {name:"RX 6800 XT",tag:"1440p ultra",sel:{cpu:"r5600x",mb:"b550mk",ram:"r32k",gpu:"g6800xt",ssd:"s1tc",psu:"cx750",case:"e302",cool:"ax120",fans:"tlc",wifi:"nowifi"}},
+ {name:"Maximum AM4",tag:"5800X3D + RX 6800 XT",sel:{cpu:"r5800",mb:"b550mk",ram:"r32k",gpu:"g6800xt",ssd:"s1tc",psu:"cx750",case:"e302",cool:"ax120",fans:"tlc",wifi:"nowifi"}}
 ];
 
 
@@ -1037,7 +1037,7 @@ const AI=(()=>{
     if(game>=0||/\bfps\b|images par seconde/.test(q)){
       const S=gpus.length?{...sel,gpu:gpus[0]}:sel, ids=game>=0?[game]:GAMES.map((g,k)=>k);
       const a=fpsAt(S,0),b=fpsAt(S,1);
-      const L=[`Avec ${ITEM[S.cpu].n} + ${ITEM[S.gpu].n} (réglages proches de la PS5, sans upscaling) :`];
+      const L=[`Avec ${ITEM[S.cpu].n} + ${ITEM[S.gpu].n} (réglages proches de la PS5, ${VIEW.up?"avec DLSS / FSR Qualité":"sans upscaling"}) :`];
       ids.forEach(k=>L.push(`• ${GAMES[k].n} : ≈ ${a.games[k].fps} fps en 1080p, ≈ ${b.games[k].fps} fps en 1440p (limité par : ${b.games[k].lim}). PS5 : ${GAMES[k].ps5} fps (${GAMES[k].ps5m}).`));
       L.push("Estimations à ± 10-15 % d'après les tests publiés.");
       return {text:L.join("\n")};
