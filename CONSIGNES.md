@@ -12,7 +12,11 @@ Les annonces sont dans `source/annonces.json`. Le site (`index.html`) est **gén
 3. **Cherche de nouvelles bonnes affaires** (Leboncoin, Vinted, comparateurs de prix du neuf, AliExpress seulement pour les petites pièces). Pas plus de 12 annonces par catégorie : garde les meilleures (prix livré / performance, fiabilité du vendeur, proximité de Vincennes 94).
 4. Mets `"mise_a_jour"` à la date du jour (AAAA-MM-JJ).
 5. Lance `python source/construire.py`. S'il refuse, corrige les données (jamais le script) jusqu'à ce qu'il accepte.
-6. Commit « Annonces du JJ/MM/AAAA » sur `main` et push. Si rien n'a changé, ne commite rien.
+6. Commit « Annonces du JJ/MM/AAAA » sur `main` (`source/annonces.json`, `source/historique.json` et `index.html`) et push. Si rien n'a changé, ne commite rien.
+
+`source/historique.json` est rempli automatiquement par `construire.py` (un point par changement de prix) : ne le modifie jamais à la main.
+
+Si un site est inaccessible (domaine non autorisé, 403), passe aux autres sources. Si tu n'as pu vérifier aucune annonce, ne change rien et dis précisément quels domaines ont été refusés.
 
 ## Règles de sélection (obligatoires)
 

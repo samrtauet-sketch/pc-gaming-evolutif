@@ -99,6 +99,29 @@ def main():
         for e in erreurs:
             print(" -", e)
         return 1
+    # Historique des prix : un point par annonce à chaque changement de prix (source/historique.json)
+    ph = os.path.join(ICI, "historique.json")
+    try:
+        hist = json.load(open(ph, encoding="utf-8"))
+        assert isinstance(hist, dict)
+    except (OSError, ValueError, AssertionError):
+        hist = {}
+    jour = d["mise_a_jour"]
+    for c in cats:
+        for i in c["items"]:
+            if i.get("src") == "none":
+                continue
+            h = [x for x in hist.get(i["id"], []) if isinstance(x, list) and len(x) == 2 and isinstance(x[1], NUM)]
+            if not h or h[-1][1] != i["price"]:
+                if h and h[-1][0] == jour:
+                    h[-1] = [jour, i["price"]]
+                else:
+                    h.append([jour, i["price"]])
+            hist[i["id"]] = h[-60:]
+    txt = "{\n" + ",\n".join(f'"{k}": {json.dumps(v)}' for k, v in sorted(hist.items())) + "\n}\n"
+    if not os.path.exists(ph) or open(ph, encoding="utf-8").read() != txt:
+        open(ph, "w", encoding="utf-8", newline="\n").write(txt)
+    d = dict(d, historique={k: v for k, v in hist.items() if k in ids})
     corps = page.replace("/*@@DONNEES@@*/null", json.dumps(d, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/"), 1)
     assert "/*@@DONNEES@@*/" not in corps
     open(os.path.join(RACINE, "index.html"), "w", encoding="utf-8", newline="\n").write(TETE + corps.rstrip("\n") + "\n</body></html>\n")

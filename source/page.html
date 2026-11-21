@@ -124,6 +124,10 @@ section[hidden]{display:none!important}
 #rtable tr.mine td{background:var(--accent-soft)}
 .r-add{font:inherit;font-size:.78rem;font-weight:600;padding:5px 9px;border-radius:7px;border:1px solid var(--accent);background:var(--surface);color:var(--accent);white-space:nowrap;cursor:pointer}
 .r-add[disabled]{border-color:var(--line);color:var(--muted);cursor:default}
+.spark{display:inline-block;vertical-align:middle;margin-left:4px}
+.trend{font-size:.72rem;font-weight:600;white-space:nowrap}
+.trend.dn{color:var(--good)} .trend.up{color:var(--bad)}
+.gain{font-variant-numeric:tabular-nums;white-space:nowrap}
 .r-msg{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .grid3{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:9px;align-content:start}
@@ -322,14 +326,14 @@ details.why p{margin-top:8px}
   <div class="sec-head">
     <span class="eyebrow">Notes gaming</span>
     <h2 id="h-rank">Classement des composants</h2>
-    <p class="small muted">Puissance : l'impact en jeu, sur 10. Pour la carte graphique, 10 correspond à environ 165 % d'une PS5, et pour le processeur à un 5800X3D. Prix / puissance : la puissance obtenue pour chaque euro, prix livré, avec 10 pour la meilleure pièce de sa catégorie. « Mettre dans ma config » remplace la pièce et vérifie la compatibilité.</p>
+    <p class="small muted">Puissance : l'impact en jeu, sur 10. Pour la carte graphique, 10 correspond à environ 165 % d'une PS5, et pour le processeur à un 5800X3D. Prix / puissance : la puissance obtenue pour chaque euro, prix livré, avec 10 pour la meilleure pièce de sa catégorie. « Gain pour ma config » : ce que la pièce ajoute vraiment à TA config (en % d'une PS5, avec ton processeur, ta RAM et l'upscaling), pour le prix en plus. « Mettre dans ma config » remplace la pièce et vérifie la compatibilité. Prix : la flèche montre l'évolution depuis la première fois que l'annonce a été vue.</p>
   </div>
   <div class="filters rank-ctl">
     <div class="frow">
       <label>Catégorie <select id="r-cat"></select></label>
-      <label>Trier par <select id="r-sort"><option value="val">Prix / puissance</option><option value="pw">Puissance</option><option value="prix">Prix livré</option></select></label>
+      <label>Trier par <select id="r-sort"><option value="gain">Gain pour ma config (par €)</option><option value="val">Prix / puissance</option><option value="pw">Puissance</option><option value="prix">Prix livré</option></select></label>
       <label>État <select id="r-etat"><option value="">Neuf et occasion</option><option value="new">Neuf</option><option value="occ">Occasion</option></select></label>
-      <label class="toggle"><input type="checkbox" id="r-safe"> <span>Masquer les annonces risquées</span></label>
+      <label class="toggle"><input type="checkbox" id="r-safe" checked> <span>Masquer les annonces risquées ou RAM non vérifiée</span></label>
     </div>
     <span class="small muted" id="r-count"></span>
   </div>
@@ -701,12 +705,27 @@ const RCATS=CATS.filter(c=>c.items.some(i=>i.pw!=null));
 const rCat=document.getElementById("r-cat"),rSort=document.getElementById("r-sort"),rEtat=document.getElementById("r-etat"),rSafe=document.getElementById("r-safe"),rMsg=document.getElementById("r-msg");
 rCat.innerHTML=RCATS.map(c=>`<option value="${c.key}"${c.key==="gpu"?" selected":""}>${c.label}</option>`).join("");
 const isRisky=i=>!!i.risk||i.dimm==="risk";
+const HIST=(DONNEES.historique&&typeof DONNEES.historique==="object")?DONNEES.historique:{};
+const frDate=d=>{try{return new Date(d+"T12:00:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"});}catch(e){return d;}};
+function priceTrend(i){
+  const h=Array.isArray(HIST[i.id])?HIST[i.id].filter(x=>Array.isArray(x)&&typeof x[1]==="number"):[];
+  if(h.length<2) return h.length?`<div class="small muted">vu le ${frDate(h[0][0])}</div>`:"";
+  const first=h[0][1], last=h[h.length-1][1], d=Math.round((last-first)*100)/100;
+  const mn=Math.min(...h.map(x=>x[1])), mx=Math.max(...h.map(x=>x[1])), W=56, H=16;
+  const pts=h.map((x,k)=>`${(k/(h.length-1)*W).toFixed(1)},${(mx===mn?H/2:H-1-(x[1]-mn)/(mx-mn)*(H-2)).toFixed(1)}`).join(" ");
+  const col=d<0?"var(--good)":d>0?"var(--bad)":"var(--muted)";
+  return `<div><svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.6"/></svg> <span class="trend ${d<0?"dn":d>0?"up":""}">${d<0?"↓ ":d>0?"↑ ":"= "}${d?eur0(Math.abs(d)):""} depuis le ${frDate(h[0][0])}</span></div>`;
+}
 function renderRank(){
   const c=RCATS.find(x=>x.key===rCat.value)||RCATS[0], k=rSort.value, et=rEtat.value;
-  let its=c.items.filter(i=>i.pw!=null&&(!et||(et==="new"?i.src==="new":i.src!=="new"))&&(!rSafe.checked||!isRisky(i)));
-  its.sort(k==="pw"?(a,b)=>b.pw-a.pw:k==="prix"?(a,b)=>cost(a,false)-cost(b,false):(a,b)=>b.val-a.val);
+  let its=c.items.filter(i=>i.pw!=null&&(!et||(et==="new"?i.src==="new":i.src!=="new"))&&(!rSafe.checked||(!isRisky(i)&&i.dimm!=="?")));
+  /* Gain réel pour la config actuelle : on remplace la pièce et on recalcule tout */
+  const base=perf(sel).avg, tb=total(sel,false), G={};
+  its.forEach(i=>{ const S={...sel,[c.key]:i.id}; const pa=perf(S).avg, ex=total(S,false)-tb;
+    const bad=compat(S).some(x=>x[0]==="bad"); G[i.id]={g:pa-base,ex,bad,score:i.id===sel[c.key]?-1e9:bad?-2e6+(pa-base):pa-base<=0?-1e6+(pa-base)-ex/1e4:ex<=0?1e6+(pa-base):(pa-base)/ex}; });
+  its.sort(k==="pw"?(a,b)=>b.pw-a.pw:k==="prix"?(a,b)=>cost(a,false)-cost(b,false):k==="gain"?(a,b)=>G[b.id].score-G[a.id].score:(a,b)=>b.val-a.val);
   document.getElementById("r-count").textContent=`${its.length} pièce(s) sur ${c.items.filter(i=>i.pw!=null).length} dans « ${c.label} ».`;
-  document.getElementById("rtable").innerHTML=`<thead><tr><th>#</th><th>Modèle</th><th>Où</th><th class="r">Livré</th><th>Puissance</th><th class="r">Prix/puiss.</th><th></th></tr></thead><tbody>${its.map((i,n)=>{
+  document.getElementById("rtable").innerHTML=`<thead><tr><th>#</th><th>Modèle</th><th>Où</th><th class="r">Livré</th><th>Puissance</th><th class="r">Prix/puiss.</th><th class="r">Gain pour ma config</th><th></th></tr></thead><tbody>${its.map((i,n)=>{
     const mine=sel[c.key]===i.id, b=[];
     if(mine) b.push('<span class="chip">ta config</span>');
     if(i.src==="new") b.push('<span class="chip good">neuf</span>');
@@ -714,7 +733,7 @@ function renderRank(){
     if(i.idf) b.push('<span class="chip">près de Vincennes</span>');
     if(isRisky(i)) b.push('<span class="chip bad">risque</span>');
     if(c.key==="ram"&&i.dimm==="?") b.push('<span class="chip warn">format à vérifier</span>');
-    return `<tr class="${mine?"mine":n===0&&k==="val"?"hl":""}"><td class="rk">${n+1}</td><td><strong>${i.n}</strong><div class="chips">${b.join("")}</div></td><td class="small muted">${i.where||""}</td><td class="r num">${eur0(cost(i,false))}</td><td><div class="pwb"><div class="bar" aria-hidden="true"><i style="width:${i.pw*10}%"></i></div><span class="num">${fmt1(i.pw)}</span></div></td><td class="r num"><strong>${fmt1(i.val)}</strong></td><td>${mine?'<button type="button" class="r-add" disabled>Dans ta config</button>':`<button type="button" class="r-add" data-cat="${c.key}" data-id="${i.id}">Mettre dans ma config</button>`}</td></tr>`;}).join("")}</tbody>`;
+    return `<tr class="${mine?"mine":n===0&&(k==="val"||(k==="gain"&&G[i.id].g>0))?"hl":""}"><td class="rk">${n+1}</td><td><strong>${i.n}</strong><div class="chips">${b.join("")}</div></td><td class="small muted">${i.where||""}</td><td class="r num">${eur0(cost(i,false))}${priceTrend(i)}</td><td><div class="pwb"><div class="bar" aria-hidden="true"><i style="width:${i.pw*10}%"></i></div><span class="num">${fmt1(i.pw)}</span></div></td><td class="r num"><strong>${fmt1(i.val)}</strong></td><td class="r gain">${mine?'<span class="muted">—</span>':`<span class="${G[i.id].g>0?"hi":G[i.id].g<0?"lo":"muted"}">${G[i.id].g>0?"+":""}${G[i.id].g} %</span><div class="small muted">${G[i.id].ex>=0?"+":"−"}${eur0(Math.abs(G[i.id].ex))}${G[i.id].bad?" · ✖ pièce à changer":""}</div>`}</td><td>${mine?'<button type="button" class="r-add" disabled>Dans ta config</button>':`<button type="button" class="r-add" data-cat="${c.key}" data-id="${i.id}">Mettre dans ma config</button>`}</td></tr>`;}).join("")}</tbody>`;
 }
 [rCat,rSort,rEtat,rSafe].forEach(x=>x.addEventListener("change",()=>{rMsg.textContent="";renderRank();}));
 const pickupEl=document.getElementById("pickup");
