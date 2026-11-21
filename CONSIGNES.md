@@ -9,6 +9,7 @@ Les annonces sont dans `source/annonces.json`. Le site (`index.html`) est **gén
    - toujours en ligne ? Prix changé ? Mets à jour `price` et `age` (« 0 j », « 3 j »…).
    - Vendue ou disparue : supprime-la, **sauf** si `construire.py` dit que la page l'utilise (config prête). Dans ce cas, garde-la et mets `"risk": "annonce probablement vendue (absente le JJ/MM)"`.
 2. **Vérifie les prix du neuf** (`src` = `new`) : mets à jour `price` s'il a changé, avec la date dans `where`.
+   - Frais de port : mets toujours `"port"` (montant affiché par le marchand). S'il n'est pas affiché, mets une estimation et `"est": 1`. Livraison gratuite : `"port": 0` et `"portTxt": "offerte (raison)"`. Le site affiche pour chaque pièce : prix + protection acheteur (Leboncoin/Vinted, calculée par le site) + livraison + garantie.
 3. **Cherche de nouvelles bonnes affaires** (Leboncoin, Vinted, comparateurs de prix du neuf, AliExpress seulement pour les petites pièces). Pas plus de 12 annonces par catégorie : garde les meilleures (prix livré / performance, fiabilité du vendeur, proximité de Vincennes 94).
 4. Mets `"mise_a_jour"` à la date du jour (AAAA-MM-JJ).
 5. Lance `python source/construire.py`. S'il refuse, corrige les données (jamais le script) jusqu'à ce qu'il accepte.
