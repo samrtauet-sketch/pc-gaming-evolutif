@@ -199,7 +199,7 @@ details.why p{margin-top:8px}
 .chat-form{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
 .chat-form textarea{flex:1;min-width:0;resize:none;font:inherit;font-size:16px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
 @media (max-width:980px){.chat-fab{bottom:calc(78px + env(safe-area-inset-bottom,0px))}.chat{bottom:calc(138px + env(safe-area-inset-bottom,0px));height:min(560px,calc(100vh - 180px))}}
-@media (max-width:600px){.chat{left:8px;right:8px;width:auto;bottom:calc(72px + env(safe-area-inset-bottom,0px));height:calc(100vh - 150px)}.chat-fab{padding:10px 14px}}
+@media (max-width:600px){.chat{left:8px;right:8px;width:auto;top:8px;bottom:calc(104px + env(safe-area-inset-bottom,0px));height:auto}.chat-fab{padding:10px 14px}}
 @media print{.chat,.chat-fab,.mbar,.filters,#ai-sec{display:none!important}}
 .bin.empty .opts::after{content:"Aucune offre ne correspond aux filtres.";font-size:.82rem;color:var(--muted)}
 /* Barre du total sur mobile */
@@ -210,7 +210,19 @@ details.why p{margin-top:8px}
   .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;justify-content:space-between;align-items:center;gap:10px;
     padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
     background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 14px rgba(0,0,0,.12)}
-  .wrap{padding-bottom:120px}
+  .wrap{padding-bottom:170px}
+}
+/* Téléphone en paysage : écran très bas, la barre du bas et le bouton de chat doivent rester petits */
+@media (max-width:980px) and (max-height:500px){
+  .mbar{padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+  .mbar br,.mbar .eyebrow{display:none}
+  .mbar strong{font-size:1.05rem}
+  .mbar #m-verdict{margin-left:8px}
+  .mbar button{padding:7px 12px}
+  .chat-fab{bottom:calc(54px + env(safe-area-inset-bottom,0px));padding:8px 12px;font-size:.85rem}
+  .chat{top:8px;bottom:8px;height:auto}
+  .tabs{position:static}
+  .wrap{padding-bottom:110px}
 }
 @media (max-width:600px){
   body{font-size:14px}
@@ -220,6 +232,8 @@ details.why p{margin-top:8px}
   .total strong{font-size:1.8rem}
   .presets{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
   .presets button{flex:0 0 auto;padding:8px 12px}
+  .tabs{display:grid;grid-template-columns:1fr 1fr;overflow:visible}
+  .tabs button{padding:8px 10px;font-size:.84rem;white-space:normal;line-height:1.2}
   th,td{padding:7px 8px}
   .tbl>table{min-width:620px}
   .card .tbl>table{min-width:0}
@@ -340,8 +354,8 @@ details.why p{margin-top:8px}
 <section data-tab="config" role="tabpanel" aria-labelledby="h-ai" class="ai" id="ai-sec">
   <div class="sec-head">
     <span class="eyebrow">Assistant IA</span>
-    <h2 id="h-ai">L'IA du site</h2>
-    <p class="small muted">L'IA du site fonctionne partout, sans compte : elle comprend ta question et calcule la réponse avec toutes les offres, le calcul des FPS et le vérificateur de compatibilité (meilleure config pour un budget, amélioration, comparaison de cartes, FPS par jeu, annonces risquées). Pose tes questions dans le chat en bas à droite. Sur claude.ai, un bouton « Approfondir avec Claude » ajoute une réponse rédigée par Claude, avec ton compte.</p>
+    <h2 id="h-ai">L'assistant du site</h2>
+    <p class="small muted">L'assistant du site fonctionne partout, sans compte. Ce n'est pas une IA : il repère les mots-clés de ta question et calcule la réponse avec toutes les offres, le calcul des FPS et le vérificateur de compatibilité (meilleure config pour un budget, amélioration, comparaison de cartes, FPS par jeu, annonces risquées). Pose tes questions dans le chat en bas à droite. Sur claude.ai, un bouton « Approfondir avec Claude » ajoute une réponse rédigée par Claude, avec ton compte.</p>
   </div>
   <div class="row">
     <button type="button" id="ai-go">Analyser les offres</button>
@@ -459,7 +473,7 @@ details.why p{margin-top:8px}
 <button type="button" class="chat-fab" id="chat-fab" aria-expanded="false" aria-controls="chat">💬 Poser une question</button>
 <div class="chat" id="chat" role="dialog" aria-label="Chat avec l'assistant PC" hidden>
   <div class="chat-head"><strong>Assistant PC</strong><span class="small muted sp" id="chat-mode">connaît les offres et ta config</span><button type="button" id="chat-clear" title="Nouvelle conversation" aria-label="Nouvelle conversation">↺</button><button type="button" id="chat-x" aria-label="Fermer le chat">✕</button></div>
-  <div class="chat-log" id="chat-log" aria-live="polite"><div class="msg a">Bonjour ! Je suis l'IA du site : je réponds instantanément en calculant avec toutes les annonces, les FPS et le vérificateur de compatibilité, sans compte ni Internet. Essaie « meilleure config sous 600 € » ou « RX 6800 ou RTX 3070 ? ».</div></div>
+  <div class="chat-log" id="chat-log" aria-live="polite"><div class="msg a">Bonjour ! Je suis l'assistant du site (des calculs automatiques, pas une IA) : je réponds instantanément en calculant avec toutes les annonces, les FPS et le vérificateur de compatibilité, sans compte ni Internet. Essaie « meilleure config sous 600 € » ou « RX 6800 ou RTX 3070 ? ».</div></div>
   <div class="chat-sugg">
     <button type="button" data-cq="Ma config est-elle compatible ? Y a-t-il un problème ?">Compatible ?</button>
     <button type="button" data-cq="Quelle est la config la moins chère qui dépasse une PS5 ?">Moins chère ≥ PS5</button>
@@ -1383,7 +1397,7 @@ const AI=(()=>{
     if(/prix|combien|total|cout|cher/.test(q)){
       return {text:`Ta config : ${eur(total(sel,false))} tout livré, ${eur(total(sel,true))} avec la main propre en Île-de-France.\nPuissance : ${perf(sel).avg} % d'une PS5.`};
     }
-    return {text:"Je suis l'IA du site : je calcule à partir des annonces de la page. Exemples de questions :\n• « meilleure config sous 600 € »\n• « la moins chère qui dépasse la PS5 »\n• « améliorer ma config pour 80 € »\n• « ma config est compatible ? »\n• « fps dans Cyberpunk »\n• « RX 6800 ou RTX 3070 ? »\n• « quelles annonces sont risquées ? »\n• « quelle RAM prendre ? »\nAjoute « main propre » pour compter le retrait près de Vincennes.",help:1};
+    return {text:"Je suis l'assistant du site (pas une IA) : je calcule à partir des annonces de la page. Exemples de questions :\n• « meilleure config sous 600 € »\n• « la moins chère qui dépasse la PS5 »\n• « améliorer ma config pour 80 € »\n• « ma config est compatible ? »\n• « fps dans Cyberpunk »\n• « RX 6800 ou RTX 3070 ? »\n• « quelles annonces sont risquées ? »\n• « quelle RAM prendre ? »\nAjoute « main propre » pour compter le retrait près de Vincennes.",help:1};
   }
   function analyse(){
     const deals=CATS.flatMap(c=>c.items).filter(i=>i.cote&&!riskyItem(i)&&i.dimm!=="?"&&i.price<i.cote).sort((a,b)=>a.price/a.cote-b.price/b.cote).slice(0,5);
@@ -1406,10 +1420,10 @@ goEl.addEventListener("click",async()=>{
   const sample=await getSample();
   if(!sample){
     const base=await getRemote(), loc=AI.analyse();
-    if(base===null){outEl.textContent=loc+"\n\n(Analyse calculée par l'IA du site : le serveur Claude est éteint.)";return;}
+    if(base===null){outEl.textContent=loc+"\n\n(Analyse calculée par l'assistant du site : le serveur Claude est éteint.)";return;}
     ctl=new AbortController(); goEl.disabled=true; stopEl.disabled=false; outEl.textContent="Claude analyse les offres… (jusqu'à une minute)";
     try{ outEl.textContent=(await remoteAsk(base,"Analyse toutes les annonces : 1. les 5 meilleures affaires ; 2. les annonces risquées et pourquoi ; 3. les problèmes de ma sélection et comment les corriger ; 4. une config conseillée sous 650 € livrée, pièce par pièce, avec son total. N'utilise aucune action.",loc,[],ctl.signal)).texte; }
-    catch(e){ outEl.textContent=loc+"\n\n(Claude : "+(e.name==="AbortError"?"arrêté":e.message)+" — analyse calculée par l'IA du site.)"; }
+    catch(e){ outEl.textContent=loc+"\n\n(Claude : "+(e.name==="AbortError"?"arrêté":e.message)+" — analyse calculée par l'assistant du site.)"; }
     finally{goEl.disabled=false;stopEl.disabled=true;ctl=null;}
     return;
   }
@@ -1459,7 +1473,7 @@ async function ask(q){
         else { t=j.texte; if(j.actions.length) res=applyActions(j.actions); }
       } else t=j.texte;
     }
-    catch(e){ t=r.text+"\n\n(Claude indisponible : "+(e.name==="AbortError"?"arrêté":e.message)+" Réponse calculée par l'IA du site.)"; d.classList.add("err"); }
+    catch(e){ t=r.text+"\n\n(Claude indisponible : "+(e.name==="AbortError"?"arrêté":e.message)+" Réponse calculée par l'assistant du site.)"; d.classList.add("err"); }
     finally{ cctl=null; send.disabled=false; }
     if(res&&(res.done.length||res.bad.length)){
       const C=compat(sel), nb=C.filter(x=>x[0]==="bad").length, nw=C.filter(x=>x[0]==="warn").length;
