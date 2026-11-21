@@ -93,6 +93,21 @@ button{font:inherit;cursor:pointer}
 .game .bar{height:7px}
 .g-sub{font-size:.72rem;color:var(--muted);line-height:1.35}
 .viewctl{display:grid;gap:6px}
+.ctlrow{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.ctl{display:inline-flex;gap:6px;align-items:center;font-size:.82rem}
+.ctl select,.ctl input{font:inherit;font-size:16px;padding:4px 6px;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+.ctl input{width:74px}
+.bal{display:grid;gap:6px}
+.bal .bh{display:flex;gap:8px;align-items:center;font-weight:700;font-size:.9rem;padding:8px 10px;border-radius:9px}
+.bal .bh.ok{background:var(--good-soft);color:var(--good)} .bal .bh.warn{background:var(--warn-soft);color:var(--warn)} .bal .bh.bad{background:var(--bad-soft);color:var(--bad)}
+.bal ul{margin:0;padding:0;list-style:none;display:grid;gap:5px}
+.bal li{font-size:.8rem;padding:7px 9px;border-radius:7px;background:var(--sunk)}
+.bal li.bad{background:var(--bad-soft);color:var(--bad)} .bal li.warn{background:var(--warn-soft);color:var(--warn)} .bal li.good{background:var(--good-soft);color:var(--good)}
+.gpuuse{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:.78rem}
+.calc{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:10px}
+.calc-in{display:flex;flex-wrap:wrap;gap:6px 14px}
+.calc-out{display:grid;grid-template-columns:1fr auto;gap:3px 10px;font-size:.82rem}
+.calc-out b{text-align:right;font-variant-numeric:tabular-nums}
 .seg{display:flex;gap:4px}
 .seg button{flex:1;padding:6px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-size:.82rem}
 .seg button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
@@ -273,14 +288,26 @@ details.why p{margin-top:8px}
       <textarea class="copyfall" id="copy-fall" hidden aria-label="Texte à copier"></textarea>
       <label class="toggle" for="pickup"><input type="checkbox" id="pickup"> <span>Main propre près de Vincennes quand c'est possible : ni frais ni livraison, avec un test sur place.</span></label>
       <div class="viewctl">
-        <span class="eyebrow">Calcul des FPS</span>
-        <div class="seg"><button type="button" data-res="0">1080p</button><button type="button" data-res="1">1440p</button></div>
-        <label class="toggle" for="upsc"><input type="checkbox" id="upsc" checked> <span>Upscaling DLSS / FSR Qualité (activé par défaut : rendu quasi identique, plus d'images/s ; la PS5 upscale aussi)</span></label>
+        <span class="eyebrow">Réglages du calcul des FPS</span>
+        <div class="seg" role="group" aria-label="Résolution"><button type="button" data-res="0">1080p</button><button type="button" data-res="1">1440p</button><button type="button" data-res="2">4K</button></div>
+        <div class="ctlrow">
+          <label class="ctl">Upscaling <select id="upsc"><option value="0">Natif (sans)</option><option value="1" selected>Qualité</option><option value="2">Équilibré</option><option value="3">Performance</option></select></label>
+          <label class="toggle"><input type="checkbox" id="rt"> <span>Ray tracing</span></label>
+          <label class="toggle"><input type="checkbox" id="fg"> <span>Génération d'images</span></label>
+        </div>
+        <span class="small muted" id="t-tech"></span>
       </div>
       <div class="meter">
         <div class="meter-top"><span class="eyebrow">Puissance moyenne (PS5 = 100 %)</span><strong class="num" id="t-perf">–</strong></div>
         <div class="bar" aria-hidden="true"><i id="t-bar"></i><b style="left:58.8%"></b></div>
         <span class="small muted" id="t-ratio">–</span>
+      </div>
+      <div class="bal" id="t-bal" aria-live="polite"></div>
+      <div class="calc">
+        <span class="eyebrow">Calculateur prix / perf</span>
+        <div class="calc-in"><label class="ctl">Jeu par jour <select id="c-h"><option value="1">1 h</option><option value="2" selected>2 h</option><option value="4">4 h</option><option value="6">6 h</option></select></label>
+        <label class="ctl">Électricité <input id="c-kwh" type="number" min="0.05" max="1" step="0.01" value="0.25" inputmode="decimal"> €/kWh</label></div>
+        <div class="calc-out" id="t-calc"></div>
       </div>
       <div class="games" id="t-games"></div>
       <ul class="notes" id="t-notes"></ul>
@@ -444,6 +471,7 @@ try{const d=new Date(DONNEES.mise_a_jour+"T12:00:00");document.getElementById("m
 /* Les annonces viennent de source/annonces.json (mises à jour automatiquement) */
 const CATS=DONNEES.categories;
 const ITEM={}, SPECS_X={}; CATS.forEach(c=>c.items.forEach(i=>{i.cat=c.key; ITEM[i.id]=i; if(i.specs&&!SPECS_X[i.id]) SPECS_X[i.id]=i.specs;}));
+const isRisky=i=>!!i.risk||i.dimm==="risk";
 function cost(i,pickup){
   if(i.src==="none") return 0;
   if(i.src==="lbc") return (pickup&&i.idf)? i.price : i.price+0.70+i.price*0.05+i.port;
@@ -471,36 +499,100 @@ const REL={ /* puissance relative, RX 6700 XT = 100 : [1080p, 1440p] */
 const PS5={rel:[88,87],cpu:0.75,vram:12};
 const CPUF={r3600e:0.78,r3600d:0.78,r5500n:0.83,r5600:0.97,r5600n:0.97,r5600x:1,r5700x:1.03,r5800:1.22};
 const GAMES=[
- {n:"Fortnite",ref:[165,118],cpu:195,x3d:1.3,nv:1.03,vr:[5,6],ps5:120,ps5m:"mode 120 Hz, ≈ 1080p, sans Lumen"},
- {n:"Warzone",ref:[122,92],cpu:160,x3d:1.3,amd:1.08,vr:[7,8.5],ram32:1.04,ps5:100,ps5m:"mode 120 Hz, ≈ 1080p dynamique"},
- {n:"Forza Horizon 5",ref:[128,106],cpu:180,x3d:1.15,amd:1.04,vr:[7,8.5],ps5:60,ps5m:"mode Performance"},
- {n:"Red Dead Redemption 2",ref:[95,76],cpu:135,x3d:1.12,vr:[5.5,6.5],ps5:30,ps5m:"version PS4, bloquée à 30 fps"},
- {n:"Cyberpunk 2077",ref:[96,66],cpu:118,x3d:1.2,nv:1.03,vr:[7,8],ps5:60,ps5m:"mode Performance, ≈ 1200-1440p + FSR"},
- {n:"Spider-Man 2",ref:[86,65],cpu:98,x3d:1.25,vr:[9.5,10.5],ram32:1.05,ps5:60,ps5m:"mode Performance, ≈ 1080-1440p dynamique"},
- {n:"Alan Wake 2",ref:[56,38],cpu:140,x3d:1.1,nv:1.05,vr:[7.5,8.5],ps5:60,ps5m:"mode Performance, ≈ 870p interne + FSR"}
+ {n:"Fortnite",rt:0.65,ref:[165,118],cpu:195,x3d:1.3,nv:1.03,vr:[5,6],ps5:120,ps5m:"mode 120 Hz, ≈ 1080p, sans Lumen"},
+ {n:"Warzone",rt:null,ref:[122,92],cpu:160,x3d:1.3,amd:1.08,vr:[7,8.5],ram32:1.04,ps5:100,ps5m:"mode 120 Hz, ≈ 1080p dynamique"},
+ {n:"Forza Horizon 5",rt:0.82,ref:[128,106],cpu:180,x3d:1.15,amd:1.04,vr:[7,8.5],ps5:60,ps5m:"mode Performance"},
+ {n:"Red Dead Redemption 2",rt:null,ref:[95,76],cpu:135,x3d:1.12,vr:[5.5,6.5],ps5:30,ps5m:"version PS4, bloquée à 30 fps"},
+ {n:"Cyberpunk 2077",rt:0.57,ref:[96,66],cpu:118,x3d:1.2,nv:1.03,vr:[7,8],ps5:60,ps5m:"mode Performance, ≈ 1200-1440p + FSR"},
+ {n:"Spider-Man 2",rt:0.75,ref:[86,65],cpu:98,x3d:1.25,vr:[9.5,10.5],ram32:1.05,ps5:60,ps5m:"mode Performance, ≈ 1080-1440p dynamique"},
+ {n:"Alan Wake 2",rt:0.60,ref:[56,38],cpu:140,x3d:1.1,nv:1.05,vr:[7.5,8.5],ps5:60,ps5m:"mode Performance, ≈ 870p interne + FSR"}
 ];
-let VIEW={res:1,up:true}; /* res : 0 = 1080p, 1 = 1440p */
+let VIEW={res:1,up:1,rt:false,fg:false}; /* res : 0 = 1080p, 1 = 1440p, 2 = 4K ; up : 0 natif, 1 Qualité, 2 Équilibré, 3 Performance */
+const RESN=["1080p","1440p","4K"], UPN=["natif","Qualité","Équilibré","Performance"];
+const settingsLabel=()=>(VIEW.up?`upscaling ${UPN[VIEW.up]}`:"sans upscaling")+(VIEW.rt?", ray tracing":"")+(VIEW.fg?", génération d'images":"");
+/* Gain de l'upscaling quand la carte graphique limite (rendu interne 67 / 58 / 50 %), plus fort en haute résolution */
+const UPF=[[1,1.30,1.45,1.60],[1,1.40,1.58,1.78],[1,1.50,1.72,1.95]];
+/* Ray tracing : part des images/s gardée, par génération de carte (Ampere = 1). Les Radeon RX 6000 perdent beaucoup plus. */
+const ARCH={turing:{n:"RTX 20",rt:0.92,dlss:1},ampere:{n:"RTX 30",rt:1,dlss:1},ada:{n:"RTX 40",rt:1.05,dlss:1},rdna2:{n:"Radeon RX 6000",rt:0.70,dlss:0},rdna3:{n:"Radeon RX 7000",rt:0.85,dlss:0},rdna1:{n:"Radeon RX 5000",rt:0,dlss:0},pascal:{n:"GTX",rt:0,dlss:0}};
+function archOf(i){
+  if(i.arch&&ARCH[i.arch]) return i.arch; const n=i.n||"";
+  if(/RTX\s?40/i.test(n)) return "ada"; if(/RTX\s?30/i.test(n)) return "ampere"; if(/RTX\s?20/i.test(n)) return "turing"; if(/GTX/i.test(n)) return "pascal";
+  if(/RX\s?7\d{3}/i.test(n)) return "rdna3"; if(/RX\s?5\d{3}/i.test(n)) return "rdna1"; return i.nv?"ampere":"rdna2";
+}
+const refAt=(g,r)=>r<2?g.ref[r]:g.ref[1]*0.53, vrAt=(g,r)=>r<2?g.vr[r]:g.vr[1]*1.25;
 function gameFps(g,o){
-  const r=VIEW.res, upF=VIEW.up?(r?1.42:1.33):1;
-  let gf=g.ref[r]*o.rel[r]/100*upF;
+  const r=VIEW.res, upF=UPF[r][VIEW.up]||1, rtOn=VIEW.rt&&g.rt!=null&&o.rtF>0;
+  let gf=refAt(g,r)*(r<2?o.rel[r]:o.rel[1]*(o.vram<10?0.94:1))/100*upF;
+  if(rtOn) gf*=Math.min(1,g.rt*o.rtF);
   if(g.amd&&o.amd) gf*=g.amd; if(g.nv&&o.nvidia) gf*=g.nv;
   let vramHit=false;
-  const need=g.vr[r]*(VIEW.up?0.92:1);
+  const need=vrAt(g,r)*[1,0.92,0.89,0.86][VIEW.up]+(rtOn?1:0);
   if(o.vram<need){ vramHit=true; const over=(need-o.vram)/o.vram; gf*=Math.max(0.6,1-over*(o.slowBus?0.8:0.5)); }
-  let cf=g.cpu*o.cpu; if(o.x3d) cf*=g.x3d/1.22; if(o.ram32&&g.ram32) cf*=g.ram32; cf*=o.ramF;
+  let cf=g.cpu*o.cpu*(rtOn?0.88:1); if(o.x3d) cf*=g.x3d/1.22; if(o.ram32&&g.ram32) cf*=g.ram32; cf*=o.ramF;
   const fps=Math.min(gf,cf);
-  return {fps:Math.round(fps),low:Math.round(fps*(gf<cf?0.78:0.68)),lim:vramHit?"mémoire vidéo":gf<cf?"carte graphique":"processeur",vramHit};
+  const shown=VIEW.fg?Math.round(fps*(fps>=45?1.7:1.45)):Math.round(fps);
+  return {fps:Math.round(fps),shown,gf,cf,rtOn,low:Math.round(fps*(gf<cf?0.78:0.68)),lim:vramHit?"mémoire vidéo":gf<cf?"carte graphique":"processeur",vramHit};
 }
 function perf(sel){
   const cpu=ITEM[sel.cpu],gpu=ITEM[sel.gpu],ram=ITEM[sel.ram],mb=ITEM[sel.mb];
   const pcie3=(mb.pcie3||cpu.pcie3)&&gpu.x8;
   const rel=(REL[gpu.id]||gpu.rel||[gpu.idx/0.88,gpu.idx/0.88]).map(v=>v*(pcie3?0.96:1));
-  const o={rel,amd:!gpu.nv,nvidia:!!gpu.nv,vram:gpu.vram,slowBus:pcie3,cpu:CPUF[cpu.id]||cpu.cpuF/1.22,x3d:cpu.id==="r5800",ram32:ram.gb>=32,ramF:ram.mhz<=2400?0.96:ram.mhz<=2666?0.97:ram.mhz<3200?0.99:1};
-  const ps={rel:PS5.rel,amd:true,nvidia:false,vram:PS5.vram,slowBus:false,cpu:PS5.cpu,x3d:false,ram32:true,ramF:1};
+  const arch=archOf(gpu);
+  const o={rel,arch,rtF:ARCH[arch].rt,amd:!gpu.nv,nvidia:!!gpu.nv,vram:gpu.vram,slowBus:pcie3,cpu:CPUF[cpu.id]||cpu.cpuF/1.22,x3d:cpu.id==="r5800",ram32:ram.gb>=32,ramF:ram.mhz<=2400?0.96:ram.mhz<=2666?0.97:ram.mhz<3200?0.99:1};
+  const ps={rel:PS5.rel,arch:"rdna2",rtF:ARCH.rdna2.rt,amd:true,nvidia:false,vram:PS5.vram,slowBus:false,cpu:PS5.cpu,x3d:false,ram32:true,ramF:1};
   const games=GAMES.map(g=>{const pc=gameFps(g,o),pv=gameFps(g,ps);return {...pc,ps5:g.ps5,ps5m:g.ps5m,ps5eq:pv.fps,pct:Math.round(pc.fps/pv.fps*100)};});
   const per=games.map(x=>x.pct);
   const avg=Math.round(Math.exp(per.reduce((a,b)=>a+Math.log(b),0)/per.length));
   return {per,avg,games,esport:Math.round(380*(CPUF[cpu.id]||1)*(cpu.id==="r5800"?1.15/1.22:1))};
+}
+/* Équilibre de la config : qui bride qui, alimentation, mémoire vidéo, RAM, écran */
+function balance(S,p){
+  const cpu=ITEM[S.cpu],gpu=ITEM[S.gpu],psu=ITEM[S.psu],ram=ITEM[S.ram],scr=ITEM[S.screen],A=ARCH[archOf(gpu)];
+  const L=[], T={}; let lvl="ok", head="";
+  const cpuG=p.games.filter(x=>x.lim==="processeur"), use=Math.round(p.games.reduce((a,x)=>a+Math.min(1,x.cf/x.gf),0)/p.games.length*100);
+  if(cpuG.length>=4&&use<85){
+    T.warn=T.warn||`Le processeur bride la carte graphique (utilisée à ${use} %)`;
+    const lost=Math.round(cpuG.reduce((a,x)=>a+(1-x.cf/x.gf),0)/cpuG.length*100);
+    let best=null; CATS.find(c=>c.key==="cpu").items.forEach(i=>{ if(i.id===S.cpu||isRisky(i)) return; const T={...S,cpu:i.id}; if(compat(T).some(x=>x[0]==="bad")) return;
+      const g=perf(T).avg-p.avg, ex=cost(i,false)-cost(cpu,false); if(g>=3&&(!best||g/Math.max(ex,1)>best.g/Math.max(best.ex,1))) best={i,g,ex}; });
+    L.push(["warn",`${cpu.n} limite les images/s dans ${cpuG.map(x=>GAMES[p.games.indexOf(x)].n).join(", ")} : la carte graphique perd environ ${lost} % de sa puissance dans ces jeux.${best?` Meilleur remède : ${best.i.n} (+${best.g} % pour ${best.ex>=0?"+":"−"}${eur0(Math.abs(best.ex))}).`:""} Monter en résolution ou activer le ray tracing utilise mieux la carte, sans perte d'images/s.`]);
+  } else if(cpuG.length>=4) L.push(["good",`Processeur et carte graphique bien assortis : le processeur limite un peu dans ${cpuG.length} jeux, mais la carte est utilisée à ${use} %.`]);
+  else if(cpuG.length) L.push(["good",`Le processeur limite seulement ${cpuG.map(x=>GAMES[p.games.indexOf(x)].n).join(", ")} : c'est normal pour ces jeux très exigeants côté processeur.`]);
+  if(cpuG.length===0&&cost(cpu,false)>cost(gpu,false)*0.8&&gpu.idx<110){ T.warn=T.warn||"Processeur surdimensionné pour cette carte graphique";
+    L.push(["warn",`Le processeur coûte presque autant que la carte graphique : en jeu, c'est la carte qui compte le plus. Un processeur moins cher et une meilleure carte donneraient plus d'images/s.`]); }
+  const w=gpu.w+cpu.watt+75, need=w*1.5, rec=GPUREC[gpu.id]||gpu.psurec||0;
+  if(psu.watt<need){ T.bad=T.bad||"L'alimentation n'est pas assez puissante";
+    L.push(["bad",`L'alimentation n'est pas assez puissante : ${psu.watt} W pour environ ${Math.round(w)} W consommés, avec des pics bien plus hauts. Il faut au moins ${Math.ceil(need/50)*50} W${rec>need?` (${rec} W conseillés par le fabricant)`:""}.`]); }
+  else if(psu.watt<rec){ T.warn=T.warn||"Alimentation un peu juste"; L.push(["warn",`Alimentation juste : ${psu.watt} W suffisent pour ≈ ${Math.round(w)} W, mais le fabricant de la carte conseille ${rec} W pour les pics.`]); }
+  else L.push(["good",`Alimentation : ${psu.watt} W pour ≈ ${Math.round(w)} W en jeu, marge de ${Math.round((psu.watt/w-1)*100)} %.`]);
+  const vr=p.games.filter(x=>x.vramHit);
+  if(vr.length){ T.warn=T.warn||`Mémoire vidéo trop petite (${gpu.vram} Go) pour ces réglages`; L.push(["warn",`Mémoire vidéo (${gpu.vram} Go) saturée dans ${vr.length} jeu(x) en ${RESN[VIEW.res]}${VIEW.rt?" avec ray tracing":""} : baisse la qualité des textures${VIEW.up?"":" ou active l'upscaling"}.`]); }
+  if(VIEW.rt&&!A.rt) L.push(["warn",`${gpu.n} ne gère pas le ray tracing : le calcul est fait sans.`]);
+  else if(VIEW.rt&&A.rt<0.8) L.push(["warn",`Ray tracing sur ${A.n} : forte perte (environ ${Math.round((1-0.57*A.rt)*100)} % d'images/s en moins dans Cyberpunk). Les RTX s'en sortent mieux.`]);
+  if(ram.gb<32&&p.games.some((x,k)=>GAMES[k].ram32)) L.push(["", `16 Go de RAM suffisent ; 32 Go feraient gagner ≈ 4-5 % dans Warzone et Spider-Man 2.`]);
+  if(ram.mhz<=2666) L.push(["",`RAM à ${ram.mhz} MHz : ≈ ${ram.mhz<=2400?4:3} % de moins côté processeur qu'en 3200 MHz.`]);
+  if(scr&&scr.src!=="none"){ const hz=+((scr.n.match(/(\d{2,3})\s?Hz/)||[])[1]||0), sr=/1440p/.test(scr.n)?1:/4K|2160p/.test(scr.n)?2:0;
+    if(sr!==VIEW.res) L.push(["warn",`Ton écran est en ${RESN[sr]} : regarde les FPS en ${RESN[sr]} (bouton en haut).`]);
+    const avg=Math.round(p.games.reduce((a,x)=>a+x.shown,0)/p.games.length);
+    if(hz&&avg>hz*1.15) L.push(["",`≈ ${avg} images/s en moyenne pour un écran ${hz} Hz : l'écran n'en affiche que ${hz}. Tu peux monter les réglages.`]); }
+  lvl=T.bad?"bad":T.warn?"warn":"ok"; head=T.bad||T.warn||(cpuG.length>=4?"Config équilibrée : processeur et carte graphique bien assortis":"Config équilibrée : c'est la carte graphique qui limite, comme il faut");
+  return {lvl,head,L,use};
+}
+function renderBalance(p,t){
+  const b=balance(sel,p), ico={ok:"✔",warn:"⚠",bad:"✖"}[b.lvl];
+  document.getElementById("t-bal").innerHTML=`<div class="bh ${b.lvl}"><span>${ico}</span><span>${b.head}</span></div>
+    <div class="gpuuse"><span class="small muted">Carte graphique utilisée</span><div class="bar" aria-hidden="true"><i style="width:${b.use}%;${b.use<80?"background:var(--warn)":""}"></i></div><b class="num">${b.use} %</b></div>
+    <ul>${b.L.map(([c,m])=>`<li class="${c}">${m}</li>`).join("")}</ul>`;
+  // calculateur prix / perf
+  const cpu=ITEM[sel.cpu],gpu=ITEM[sel.gpu], h=+document.getElementById("c-h").value||2, k=Math.min(1,Math.max(0.05,+document.getElementById("c-kwh").value||0.25));
+  const wGame=Math.round(gpu.w*0.92+cpu.watt*0.7+55), yr=wGame*h*365/1000*k, ps5yr=200*h*365/1000*k;
+  const avg=Math.round(p.games.reduce((a,x)=>a+x.fps,0)/p.games.length), ps5avg=Math.round(GAMES.reduce((a,g)=>a+g.ps5,0)/GAMES.length);
+  document.getElementById("t-calc").innerHTML=[
+    ["Prix de la config",eur(t)],["Puissance",`${p.avg} % d'une PS5`],["Prix par point de PS5",eur(t/p.avg)],
+    [`Images/s moyennes (${RESN[VIEW.res]})`,`${avg} fps (PS5 : ${ps5avg})`],["Prix par image/s",eur(t/avg)],
+    ["Consommation en jeu",`≈ ${wGame} W (PS5 : ≈ 200 W)`],[`Électricité par an (${h} h/jour)`,`${eur0(yr)} (PS5 : ${eur0(ps5yr)})`],
+    ["Coût sur 3 ans (achat + électricité)",eur0(t+yr*3)]
+  ].map(([a,v])=>`<span>${a}</span><b>${v}</b>`).join("");
 }
 function total(sel,pickup){return Object.values(sel).reduce((s,id)=>s+(ITEM[id]?cost(ITEM[id],pickup):0),0);}
 function notes(sel){
@@ -704,7 +796,6 @@ CATS.forEach(c=>{
 const RCATS=CATS.filter(c=>c.items.some(i=>i.pw!=null));
 const rCat=document.getElementById("r-cat"),rSort=document.getElementById("r-sort"),rEtat=document.getElementById("r-etat"),rSafe=document.getElementById("r-safe"),rMsg=document.getElementById("r-msg");
 rCat.innerHTML=RCATS.map(c=>`<option value="${c.key}"${c.key==="gpu"?" selected":""}>${c.label}</option>`).join("");
-const isRisky=i=>!!i.risk||i.dimm==="risk";
 const HIST=(DONNEES.historique&&typeof DONNEES.historique==="object")?DONNEES.historique:{};
 const frDate=d=>{try{return new Date(d+"T12:00:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"});}catch(e){return d;}};
 function priceTrend(i){
@@ -738,7 +829,10 @@ function renderRank(){
 [rCat,rSort,rEtat,rSafe].forEach(x=>x.addEventListener("change",()=>{rMsg.textContent="";renderRank();}));
 const pickupEl=document.getElementById("pickup");
 pickupEl.addEventListener("change",()=>{render();renderTable();});
-document.getElementById("upsc").addEventListener("change",e=>{VIEW.up=e.target.checked;render();renderTable();});
+document.getElementById("upsc").addEventListener("change",e=>{VIEW.up=+e.target.value;render();renderTable();});
+document.getElementById("rt").addEventListener("change",e=>{VIEW.rt=e.target.checked;render();renderTable();});
+document.getElementById("fg").addEventListener("change",e=>{VIEW.fg=e.target.checked;render();renderTable();});
+["c-h","c-kwh"].forEach(id=>document.getElementById(id).addEventListener("input",()=>render()));
 
 /* Filtres : la pièce sélectionnée reste toujours visible */
 const F={q:"",max:0,dimm:true,idf:false,safe:false,slots:false};
@@ -861,7 +955,7 @@ function configText(){
   const pk=pickupEl.checked,p=perf(sel),v=verdictOf(compat(sel));
   const lines=["Ma config PC gaming (AM4 / DDR4)",""];
   CATS.forEach(c=>{const i=ITEM[sel[c.key]]; if(!i||i.src==="none") return; lines.push(`- ${c.label} : ${i.n} — ${eur(cost(i,pk))}${i.url?" — "+i.url:""}`);});
-  lines.push("",`Total : ${eur(total(sel,pk))}${pk?" (main propre en Île-de-France quand possible)":" (tout livré)"}`,`Puissance : ${p.avg} % d'une PS5 (${VIEW.res?"1440p":"1080p"})`,`Vérification : ${v[2]}`);
+  lines.push("",`Total : ${eur(total(sel,pk))}${pk?" (main propre en Île-de-France quand possible)":" (tout livré)"}`,`Puissance : ${p.avg} % d'une PS5 (${RESN[VIEW.res]}, ${settingsLabel()})`,`Vérification : ${v[2]}`);
   return lines.join("\n");
 }
 const copyOk=document.getElementById("copy-ok"),copyFall=document.getElementById("copy-fall");
@@ -893,9 +987,14 @@ function render(){
   document.getElementById("t-bar").style.width=Math.min(100,p.avg/170*100)+"%";
   document.getElementById("t-ratio").textContent=`${(t/p.avg).toLocaleString("fr-FR",{maximumFractionDigits:2})} € par point de perf · Valorant : ≈ ${p.esport} fps avec ce processeur (PS5 : 120 fps max)`;
   document.querySelectorAll("[data-res]").forEach(b=>b.classList.toggle("on",+b.dataset.res===VIEW.res));
+  { const gpu=ITEM[sel.gpu], A=ARCH[archOf(gpu)];
+    document.getElementById("t-tech").textContent=(VIEW.up?`${A.dlss?"DLSS":"FSR"} ${UPN[VIEW.up]} : ${A.dlss?"image quasi identique au natif":"image un peu moins nette que le DLSS"+(VIEW.up===3?", visible en mode Performance":"")}. `:"Rendu natif : la meilleure image, mais moins d'images/s. ")+
+      (VIEW.rt?(A.rt?`Ray tracing ${A.n} : ${A.rt>=1?"bon":A.rt>=0.85?"correct":"grosse perte"}. `:`Cette carte (${A.n}) ne gère pas le ray tracing. `):"")+
+      (VIEW.fg?"Génération d'images : plus fluide à l'écran, mais la réactivité reste celle des images réelles (à éviter sous 45 fps réels).":""); }
+  renderBalance(p,t);
   document.getElementById("t-games").innerHTML=GAMES.map((g,k)=>{
     const x=p.games[k], scale=Math.max(x.fps,x.ps5)*1.15;
-    return `<div class="game"><div class="g-top"><span class="g-n">${g.n}</span><span class="g-f ${x.fps<x.ps5?'lo':'hi'}"><strong>${x.fps}</strong> fps</span></div>
+    return `<div class="game"><div class="g-top"><span class="g-n">${g.n}${x.rtOn?' <span class="chip">RT</span>':""}</span><span class="g-f ${x.fps<x.ps5?'lo':'hi'}"><strong>${x.fps}</strong> fps${VIEW.fg?` <span class="small muted">(${x.shown} affichés)</span>`:""}</span></div>
     <div class="bar"><i style="width:${x.fps/scale*100}%;${x.fps<x.ps5?'background:var(--warn)':''}"></i><b style="left:${x.ps5/scale*100}%" title="PS5"></b></div>
     <div class="g-sub">1 % low ≈ ${x.low} fps · limité par : ${x.lim}${x.vramHit?" (baisse les textures)":""}<br>PS5 : ${x.ps5} fps (${x.ps5m}) · puissance ${x.pct} % d'une PS5</div></div>`;}).join("");
   document.getElementById("t-notes").innerHTML=notes(sel).map(([c,m])=>`<li class="${c}">${m}</li>`).join("");
@@ -1000,7 +1099,7 @@ function getRemote(){
 async function remoteAsk(base,q,local,hist,signal){
   const sl=Object.entries(sel).map(([k,id])=>`${k}: ${ITEM[id].n}`).join(", ");
   const C=compat(sel).filter(x=>x[0]!=="ok").map(x=>`${x[1]} : ${x[2]}`).join(" | ")||"aucun problème";
-  const etat=`Main propre : ${pickupEl.checked?"oui":"non"} · upscaling : ${VIEW.up?"oui":"non"} · filtres : recherche « ${document.getElementById("f-q").value} », prix max ${F.max||"aucun"}, RAM PC fixe ${F.dimm?"oui":"non"}, 4 emplacements ${F.slots?"oui":"non"}, près de Vincennes ${F.idf?"oui":"non"}, masquer risquées ${F.safe?"oui":"non"}`;
+  const etat=`Main propre : ${pickupEl.checked?"oui":"non"} · résolution : ${RESN[VIEW.res]} · upscaling : ${UPN[VIEW.up]} · ray tracing : ${VIEW.rt?"oui":"non"} · génération d'images : ${VIEW.fg?"oui":"non"} · filtres : recherche « ${document.getElementById("f-q").value} », prix max ${F.max||"aucun"}, RAM PC fixe ${F.dimm?"oui":"non"}, 4 emplacements ${F.slots?"oui":"non"}, près de Vincennes ${F.idf?"oui":"non"}, masquer risquées ${F.safe?"oui":"non"}`;
   const body={q:q.slice(0,600),local:(local||"").slice(0,3000),hist:hist.slice(-6).map(t=>({role:t.role,content:t.content.slice(0,1500)})),cat:catalogue().slice(0,40000),
     sel:`${sl}\nTotal livré : ${total(sel,false).toFixed(2)} € · perf moyenne : ${perf(sel).avg} % d'une PS5.\nVérificateur : ${C}\n${etat}\nCatégories (cible de « choisir ») : ${CATS.map(c=>c.key+" = "+c.label).join(" ; ")}\nConfigs prêtes (valeur de « preset ») : ${PRESETS.map(p=>p.name).join(" ; ")}`.slice(0,3000)};
   const r=await fetch(base+"/api/ia",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),signal});
@@ -1011,9 +1110,9 @@ async function remoteAsk(base,q,local,hist,signal){
 /* Actions que Claude peut faire sur la page (toutes vérifiées ici avant d'être appliquées) */
 const SECTIONS={configurateur:"h-build",fiche:"sheet",verificateur:"h-check",ia:"h-ai",classement:"h-rank",configs:"h-presets",hs:"h-hs",historique:"h-hist",securite:"h-safe"};
 const FILTRES={ram_pc_fixe:["f-dimm","dimm"],quatre_emplacements:["f-slots","slots"],pres_vincennes:["f-idf","idf"],masquer_risquees:["f-safe","safe"]};
-function snapshot(){return {sel:{...sel},pk:pickupEl.checked,up:VIEW.up,F:{...F},q:document.getElementById("f-q").value};}
+function snapshot(){return {sel:{...sel},pk:pickupEl.checked,V:{...VIEW},F:{...F},q:document.getElementById("f-q").value};}
 function restore(S){
-  sel={...S.sel}; pickupEl.checked=S.pk; VIEW.up=S.up; document.getElementById("upsc").checked=S.up; Object.assign(F,S.F);
+  sel={...S.sel}; pickupEl.checked=S.pk; Object.assign(VIEW,S.V); document.getElementById("upsc").value=String(VIEW.up); document.getElementById("rt").checked=VIEW.rt; document.getElementById("fg").checked=VIEW.fg; Object.assign(F,S.F);
   document.getElementById("f-q").value=S.q; document.getElementById("f-max").value=String(S.F.max);
   Object.values(FILTRES).forEach(([id,k])=>document.getElementById(id).checked=F[k]);
   markPreset(); render(); renderTable(); applyFilters();
@@ -1043,7 +1142,15 @@ function applyActions(acts){
     }else if(a.type==="main_propre"){
       pickupEl.checked=oui(v); done.push(`main propre : ${pickupEl.checked?"oui":"non"}`);
     }else if(a.type==="upscaling"){
-      VIEW.up=oui(v); document.getElementById("upsc").checked=VIEW.up; done.push(`upscaling : ${VIEW.up?"oui":"non"}`);
+      const m={natif:0,non:0,qualite:1,oui:1,equilibre:2,performance:3}[norm(v.trim())]; if(m===undefined){bad.push(`upscaling « ${v} » inconnu`);continue;}
+      VIEW.up=m; document.getElementById("upsc").value=String(m); done.push(`upscaling : ${UPN[m]}`);
+    }else if(a.type==="ray_tracing"){
+      VIEW.rt=oui(v); document.getElementById("rt").checked=VIEW.rt; done.push(`ray tracing : ${VIEW.rt?"oui":"non"}`);
+    }else if(a.type==="generation"){
+      VIEW.fg=oui(v); document.getElementById("fg").checked=VIEW.fg; done.push(`génération d'images : ${VIEW.fg?"oui":"non"}`);
+    }else if(a.type==="resolution"){
+      const r={"1080p":0,"1440p":1,"4k":2,"2160p":2}[v.trim().toLowerCase()]; if(r===undefined){bad.push(`résolution « ${v} » inconnue`);continue;}
+      VIEW.res=r; done.push(`résolution : ${RESN[r]}`);
     }else if(a.type==="analyser"){ analyse=true; done.push("analyse des offres lancée"); }
   }
   if(done.length){ markPreset(); render(); renderTable(); applyFilters(); }
@@ -1096,7 +1203,7 @@ const AI=(()=>{
     ["cpu","gpu","ram","mb","psu","ssd","case","cool","fans","paste"].forEach(k=>{const i=ITEM[S[k]]; if(i&&i.src!=="none") L.push(`• ${i.n} — ${eur(cost(i,pk))}`);});
     const p=perf(S), v=verdictOf(compat(S));
     L.push(`Total ${pk?"(main propre en IDF quand possible)":"livré"} : ${eur(total(S,pk))}`);
-    L.push(`Puissance : ${p.avg} % d'une PS5 en ${VIEW.res?"1440p":"1080p"} · Cyberpunk ≈ ${p.games[4].fps} fps · Fortnite ≈ ${p.games[0].fps} fps`);
+    L.push(`Puissance : ${p.avg} % d'une PS5 en ${RESN[VIEW.res]} · Cyberpunk ≈ ${p.games[4].fps} fps · Fortnite ≈ ${p.games[0].fps} fps`);
     L.push(`Vérificateur : ${v[2]}`);
     return L.join("\n");
   }
@@ -1131,7 +1238,7 @@ const AI=(()=>{
     if(game>=0||/\bfps\b|images par seconde/.test(q)){
       const S=gpus.length?{...sel,gpu:gpus[0]}:sel, ids=game>=0?[game]:GAMES.map((g,k)=>k);
       const a=fpsAt(S,0),b=fpsAt(S,1);
-      const L=[`Avec ${ITEM[S.cpu].n} + ${ITEM[S.gpu].n} (réglages proches de la PS5, ${VIEW.up?"avec DLSS / FSR Qualité":"sans upscaling"}) :`];
+      const L=[`Avec ${ITEM[S.cpu].n} + ${ITEM[S.gpu].n} (réglages proches de la PS5, ${settingsLabel()}) :`];
       ids.forEach(k=>L.push(`• ${GAMES[k].n} : ≈ ${a.games[k].fps} fps en 1080p, ≈ ${b.games[k].fps} fps en 1440p (limité par : ${b.games[k].lim}). PS5 : ${GAMES[k].ps5} fps (${GAMES[k].ps5m}).`));
       L.push("Estimations à ± 10-15 % d'après les tests publiés.");
       return {text:L.join("\n")};
