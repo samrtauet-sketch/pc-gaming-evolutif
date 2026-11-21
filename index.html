@@ -1121,16 +1121,30 @@ function getRemote(){
   })().catch(()=>null);
   return remoteP;
 }
-async function remoteAsk(base,q,local,hist,signal){
+function pageState(){
+  const tab=(document.querySelector('[role="tab"].on')||{dataset:{}}).dataset.tab||"config";
+  const T=id=>{const e=document.getElementById(id);return e?e.innerText.replace(/[ \t]+/g," ").replace(/\n\s*\n+/g,"\n").trim():"";};
+  return `ONGLET OUVERT : ${tab}\nRÉGLAGES : ${RESN[VIEW.res]}, ${settingsLabel()}\nVERDICT : ${T("t-verdict")}\nÉQUILIBRE DE LA CONFIG :\n${T("t-bal")}\nFPS PAR JEU :\n${T("t-games")}\nCALCULATEUR PRIX / PERF :\n${T("t-calc")}\nAMORTISSEMENT FACE À UNE PS5 :\n${T("t-amort")}\nVÉRIFICATEUR :\n${T("v-compat")}\nCONSEILS AFFICHÉS :\n${T("t-notes")}`.slice(0,7000);
+}
+async function remoteAsk(base,q,local,hist,signal,verif){
   const sl=Object.entries(sel).map(([k,id])=>`${k}: ${ITEM[id].n}`).join(", ");
   const C=compat(sel).filter(x=>x[0]!=="ok").map(x=>`${x[1]} : ${x[2]}`).join(" | ")||"aucun problème";
   const etat=`Main propre : ${pickupEl.checked?"oui":"non"} · résolution : ${RESN[VIEW.res]} · upscaling : ${UPN[VIEW.up]} · ray tracing : ${VIEW.rt?"oui":"non"} · génération d'images : ${VIEW.fg?"oui":"non"} · filtres : recherche « ${document.getElementById("f-q").value} », prix max ${F.max||"aucun"}, RAM PC fixe ${F.dimm?"oui":"non"}, 4 emplacements ${F.slots?"oui":"non"}, près de Vincennes ${F.idf?"oui":"non"}, masquer risquées ${F.safe?"oui":"non"}`;
   const body={q:q.slice(0,600),local:(local||"").slice(0,3000),hist:hist.slice(-6).map(t=>({role:t.role,content:t.content.slice(0,1500)})),cat:catalogue().slice(0,40000),
     sel:`${sl}\nTotal livré : ${total(sel,false).toFixed(2)} € · perf moyenne : ${perf(sel).avg} % d'une PS5.\nVérificateur : ${C}\n${etat}\nCatégories (cible de « choisir ») : ${CATS.map(c=>c.key+" = "+c.label).join(" ; ")}\nConfigs prêtes (valeur de « preset ») : ${PRESETS.map(p=>p.name).join(" ; ")}`.slice(0,3000)};
+  body.page=pageState(); if(verif) body.verif=String(verif).slice(0,2500);
   const r=await fetch(base+"/api/ia",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),signal});
   let j={}; try{j=await r.json();}catch(e){}
   if(!r.ok||typeof j.texte!=="string") throw new Error(j.erreur||"Claude indisponible.");
   return {texte:j.texte,actions:Array.isArray(j.actions)?j.actions:[]};
+}
+/* Claude réfléchit avant de changer : le site simule ses actions et lui renvoie le résultat s'il crée un problème */
+function simulate(acts){
+  const S=snapshot(), b0=new Set(compat(sel).filter(x=>x[0]==="bad").map(x=>x[1])), p0=perf(sel).avg, t0=total(sel,pickupEl.checked);
+  const r=applyActions(acts,true), C=compat(sel), p1=perf(sel).avg, t1=total(sel,pickupEl.checked), bl=balance(sel,perf(sel));
+  const newBad=C.filter(x=>x[0]==="bad"&&!b0.has(x[1]));
+  restore(S);
+  return {newBad,r,text:`Résultat simulé par le site : ${r.done.join(" · ")||"aucun changement"}${r.bad.length?" | ignoré : "+r.bad.join(" · "):""}\nAvant : ${eur(t0)}, ${p0} % d'une PS5. Après : ${eur(t1)}, ${p1} % d'une PS5.\nÉquilibre après : ${bl.head}.\n${newBad.length?"NOUVEAUX PROBLÈMES : "+newBad.map(x=>x[1]+" : "+x[2]).join(" | "):"Aucun nouveau problème de compatibilité."}`};
 }
 /* Actions que Claude peut faire sur la page (toutes vérifiées ici avant d'être appliquées) */
 const SECTIONS={configurateur:"h-build",fiche:"sheet",verificateur:"h-check",ia:"h-ai",classement:"h-rank",configs:"h-presets",hs:"h-hs",historique:"h-hist",securite:"h-safe"};
@@ -1142,12 +1156,12 @@ function restore(S){
   Object.values(FILTRES).forEach(([id,k])=>document.getElementById(id).checked=F[k]);
   markPreset(); render(); renderTable(); applyFilters();
 }
-function applyActions(acts){
+function applyActions(acts,dry){
   const done=[], bad=[]; let goTo=null, analyse=false;
   const oui=v=>/^(oui|vrai|true|1|on)$/i.test(String(v).trim());
   for(const a of acts.slice(0,20)){
     if(!a||typeof a.type!=="string") continue;
-    const c=String(a.cible||""), v=String(a.valeur||"");
+    const c=String(a.cible||""), v=String(a.valeur||""), why=String(a.pourquoi||"").slice(0,90), n0=done.length;
     if(a.type==="choisir"){
       const it=ITEM[v];
       if(it&&it.cat===c&&c in sel){ sel[c]=v; done.push(`${c} → ${it.n}`); } else bad.push(`pièce « ${v} » inconnue pour ${c}`);
@@ -1177,8 +1191,10 @@ function applyActions(acts){
       const r={"1080p":0,"1440p":1,"4k":2,"2160p":2}[v.trim().toLowerCase()]; if(r===undefined){bad.push(`résolution « ${v} » inconnue`);continue;}
       VIEW.res=r; done.push(`résolution : ${RESN[r]}`);
     }else if(a.type==="analyser"){ analyse=true; done.push("analyse des offres lancée"); }
+    if(why&&done.length>n0) done[done.length-1]+=` (${why})`;
   }
   if(done.length){ markPreset(); render(); renderTable(); applyFilters(); }
+  if(dry) return {done,bad};
   if(goTo){ const el=document.getElementById(goTo), sec=el.closest("section[data-tab]"); if(sec) showTab(sec.dataset.tab); (el.closest("section")||el).scrollIntoView({behavior:"smooth",block:"start"}); }
   if(analyse) setTimeout(()=>goEl.click(),50);
   return {done,bad};
@@ -1395,7 +1411,19 @@ async function ask(q){
   if(base!==null){
     const d=bubble("a","Claude réfléchit…"); cctl=new AbortController(); send.disabled=true;
     let t, res=null, before=snapshot();
-    try{ const j=await remoteAsk(base,q,r.text,turns,cctl.signal); t=j.texte; if(j.actions.length) res=applyActions(j.actions); }
+    try{
+      let j=await remoteAsk(base,q,r.text,turns,cctl.signal);
+      if(j.actions.length){
+        let sim=simulate(j.actions);
+        if(sim.newBad.length||sim.r.bad.length){
+          d.textContent="Claude vérifie sa proposition…";
+          const j2=await remoteAsk(base,q,r.text,turns,cctl.signal,sim.text+"\nTes actions proposées : "+JSON.stringify(j.actions).slice(0,1200));
+          j=j2; sim=j.actions.length?simulate(j.actions):null;
+        }
+        if(sim&&sim.newBad.length){ t=j.texte+"\n\n✖ Je n'ai rien changé sur la page : ces changements rendraient la config incompatible ("+sim.newBad.map(x=>x[1]).join(", ")+")."; }
+        else { t=j.texte; if(j.actions.length) res=applyActions(j.actions); }
+      } else t=j.texte;
+    }
     catch(e){ t=r.text+"\n\n(Claude indisponible : "+(e.name==="AbortError"?"arrêté":e.message)+" Réponse calculée par l'IA du site.)"; d.classList.add("err"); }
     finally{ cctl=null; send.disabled=false; }
     if(res&&(res.done.length||res.bad.length)){
@@ -1436,7 +1464,7 @@ async function claudeAsk(q){
 document.getElementById("chat-form").addEventListener("submit",e=>{e.preventDefault();ask(cq.value);});
 cq.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();ask(cq.value);}});
 document.querySelectorAll("[data-cq]").forEach(b=>b.addEventListener("click",()=>ask(b.dataset.cq)));
-getRemote().then(b=>{ if(b!==null){ document.getElementById("chat-mode").textContent="Claude en ligne · questions sur le PC uniquement"; bubble("a","Claude est connecté : pose ta question en langage naturel (uniquement sur le PC, les pièces et les annonces). Il peut aussi agir sur la page : « mets-moi la RTX 3070 », « charge la config Recommandé », « montre seulement les offres près de Vincennes », « emmène-moi au vérificateur »… Chaque changement peut être annulé."); } });
+getRemote().then(b=>{ if(b!==null){ document.getElementById("chat-mode").textContent="Claude en ligne · questions sur le PC uniquement"; bubble("a","Claude est connecté : pose ta question en langage naturel (uniquement sur le PC, les pièces et les annonces). Il lit la page (config, équilibre, FPS, coûts) et peut la modifier de lui-même quand c'est utile, après avoir vérifié le résultat avec le site. Il peut aussi agir à ta demande : « mets-moi la RTX 3070 », « charge la config Recommandé », « montre seulement les offres près de Vincennes », « emmène-moi au vérificateur »… Chaque changement peut être annulé."); } });
 })();
 </script>
 </body></html>
