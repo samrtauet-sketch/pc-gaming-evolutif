@@ -359,7 +359,7 @@ details.why p{margin-top:8px}
   <div class="sec-head">
     <span class="eyebrow">Notes gaming</span>
     <h2 id="h-rank">Classement des composants</h2>
-    <p class="small muted">Puissance : l'impact en jeu, sur 10. Pour la carte graphique, 10 correspond à environ 165 % d'une PS5, et pour le processeur à un 5800X3D. Prix / puissance : la puissance obtenue pour chaque euro, prix livré, avec 10 pour la meilleure pièce de sa catégorie. « Gain pour ma config » : ce que la pièce ajoute vraiment à TA config (en % d'une PS5, avec ton processeur, ta RAM et l'upscaling), pour le prix en plus. « Mettre dans ma config » remplace la pièce et vérifie la compatibilité. Prix : la flèche montre l'évolution depuis la première fois que l'annonce a été vue.</p>
+    <p class="small muted">Puissance : l'impact en jeu, sur 10, avec 10 pour la pièce la plus puissante de sa catégorie avec les réglages choisis. Prix / puissance : la puissance obtenue pour chaque euro, prix livré, avec 10 pour la meilleure pièce de sa catégorie. Les notes de puissance suivent les réglages choisis (résolution, upscaling, ray tracing) et la mémoire vidéo : une carte dont la mémoire sature est notée plus bas. « Gain pour ma config » : ce que la pièce ajoute vraiment à TA config (en % d'une PS5, avec ton processeur, ta RAM et l'upscaling), pour le prix en plus. « Mettre dans ma config » remplace la pièce et vérifie la compatibilité. Prix : la flèche montre l'évolution depuis la première fois que l'annonce a été vue.</p>
   </div>
   <div class="filters rank-ctl">
     <div class="frow">
@@ -762,14 +762,45 @@ PRESETS.forEach(p=>{
 });
 /* Notes gaming : puissance /10 et rapport prix/puissance /10 (le meilleur de sa catégorie = 10) */
 const PW={b550mk:8.5,a520ds3h:7,a520:6,soyo:7,ds3h:8.5,r16l:6.8,r16cr:6.5,r16v:6.8,r32k:8.3,r32s:8,r32lpx:8.8,r32rgb:9,r32tz:9.5,r16c:7,r16m:7,r16n:7.5,r32h:8.5,r32o:9,s500n:6.5,s1tn:9,s512v:6.5,s512s:6,s1tc:9,s1tl:9,cx550:6,a650:7.5,cx750:9,e302:7,forge:9};
-const ps5pct=i=>Math.round((REL[i.id]?REL[i.id][1]:i.rel?i.rel[1]:i.idx*0.88)/PS5.rel[1]*100);
-function power(i){ if(i.idx) return Math.min(10,ps5pct(i)/16.5); if(i.cpuF) return Math.min(10,i.cpuF/1.5*10); return PW[i.id]??i.pw; }
-CATS.forEach(c=>{
-  const sc=c.items.filter(i=>power(i)!=null);
-  const raw=sc.map(i=>power(i)/cost(i,false)); const mx=Math.max(...raw);
-  sc.forEach((i,k)=>{i.pw=power(i); i.val=raw[k]/mx*10;});
-});
+/* Puissance d'une pièce seule, avec les réglages choisis :
+   carte graphique = % d'une PS5 sans limite de processeur (mémoire vidéo, ray tracing, upscaling compris) ;
+   processeur = % d'une PS5 sans limite de carte graphique. */
+const geo=a=>Math.round(Math.exp(a.reduce((s,x)=>s+Math.log(Math.max(1,x)),0)/a.length));
+function gpuPower(i){
+  const arch=archOf(i), rel=REL[i.id]||i.rel||[i.idx/0.88,i.idx/0.88];
+  const o={rel,arch,rtF:ARCH[arch].rt,amd:!i.nv,nvidia:!!i.nv,vram:i.vram,slowBus:false,cpu:9,x3d:false,ram32:true,ramF:1};
+  const ps={rel:PS5.rel,arch:"rdna2",rtF:ARCH.rdna2.rt,amd:true,nvidia:false,vram:PS5.vram,slowBus:false,cpu:9,x3d:false,ram32:true,ramF:1};
+  const g=GAMES.map(G=>{const a=gameFps(G,o),b=gameFps(G,ps);return {pct:a.fps/b.fps*100,vr:a.vramHit,n:G.n};});
+  return {pct:geo(g.map(x=>x.pct)),vram:g.filter(x=>x.vr).map(x=>x.n)};
+}
+function cpuPower(i){
+  const big={rel:[900,900],arch:"ampere",rtF:1,amd:false,nvidia:false,vram:48,slowBus:false,ram32:true,ramF:1};
+  const o={...big,cpu:CPUF[i.id]||i.cpuF/1.22,x3d:i.id==="r5800"}, ps={...big,cpu:PS5.cpu};
+  return {pct:geo(GAMES.map(G=>gameFps(G,o).fps/gameFps(G,ps).fps*100))};
+}
+const ps5pct=i=>i.gpct!=null?i.gpct:gpuPower(i).pct;
+function rescore(){
+  let cmax=1, gmax=1;
+  CATS.forEach(c=>c.items.forEach(i=>{
+    if(i.idx){ const r=gpuPower(i); i.gpct=r.pct; i.vramGames=r.vram; gmax=Math.max(gmax,r.pct); }
+    else if(i.cpuF){ i.cpct=cpuPower(i).pct; cmax=Math.max(cmax,i.cpct); }
+    else if((PW[i.id]??i.pw)!=null) i.pw=PW[i.id]??i.pw;
+  }));
+  CATS.forEach(c=>c.items.forEach(i=>{ if(i.cpuF) i.pw=i.cpct/cmax*10; if(i.idx) i.pw=i.gpct/gmax*10; }));
+  CATS.forEach(c=>{
+    const sc=c.items.filter(i=>i.pw!=null&&i.src!=="none");
+    const raw=sc.map(i=>i.pw/Math.max(1,cost(i,false))), mx=Math.max(...raw);
+    sc.forEach((i,k)=>{i.val=raw[k]/mx*10;});
+  });
+}
+rescore();
 const fmt1=v=>v.toLocaleString("fr-FR",{minimumFractionDigits:1,maximumFractionDigits:1});
+const gpuLine=i=>`≈ ${i.gpct} % de la puissance d'une PS5 (${RESN[VIEW.res]}, ${settingsLabel()}) · ${i.vram} Go de mémoire vidéo${i.vramGames&&i.vramGames.length?` (saturée dans ${i.vramGames.length} jeu${i.vramGames.length>1?"x":""} : la note en tient compte)`:""} · ${i.w} W`;
+function refreshScores(){
+  document.querySelectorAll("[data-sc]").forEach(e=>{const i=ITEM[e.dataset.sc]; if(i) e.innerHTML=scoreRow("Puissance",i.pw)+scoreRow("Prix / puissance",i.val);});
+  document.querySelectorAll("[data-gl]").forEach(e=>{const i=ITEM[e.dataset.gl]; if(i) e.textContent=gpuLine(i);});
+  document.querySelectorAll("[data-vchip]").forEach(e=>{const i=ITEM[e.dataset.vchip]; const n=i&&i.vramGames?i.vramGames.length:0; e.hidden=!n; e.textContent=n?`mémoire vidéo juste (${n} jeu${n>1?"x":""})`:"";});
+}
 const scoreRow=(lbl,v)=>`<span>${lbl}</span><div class="bar" aria-hidden="true"><i style="width:${v*10}%"></i></div><b class="sc">${fmt1(v)}/10</b>`;
 
 /* Rendu des bacs */
@@ -786,14 +817,15 @@ CATS.forEach(c=>{
     if(i.idf) chips.push(`<span class="chip good">près de Vincennes</span>`);
     if(i.src==="new") chips.push(`<span class="chip">neuf, livré</span>`);
     if(i.risk) chips.push(`<span class="chip bad">à vérifier</span>`);
+    if(i.idx) chips.push(`<span class="chip warn" data-vchip="${i.id}" hidden></span>`);
     if(i.cooler===true) chips.push(`<span class="chip">ventirad inclus</span>`);
     if(i.cat==="ram"&&i.dimm==="ok") chips.push(`<span class="chip good">PC fixe vérifiée</span>`);
     if(i.cat==="ram"&&i.dimm==="?") chips.push(`<span class="chip warn">fixe ou portable ?</span>`);
     if(i.cat==="ram"&&i.sticks) chips.push(`<span class="chip">${i.sticks==="?"?"nb de barrettes ?":i.sticks+" barrettes"}</span>`);
     if(i.slots) chips.push(`<span class="chip ${i.slots===4?"good":i.slots===2?"warn":""}">${i.slots==="?"?"slots RAM ?":i.slots+" slots RAM"}</span>`);
-    const scores=i.pw!=null?`<div class="scores">${scoreRow("Puissance",i.pw)}${scoreRow("Prix / puissance",i.val)}</div>`:"";
+    const scores=i.pw!=null?`<div class="scores" data-sc="${i.id}">${scoreRow("Puissance",i.pw)}${scoreRow("Prix / puissance",i.val)}</div>`:"";
     const lines=[];
-    if(i.idx) lines.push(`≈ ${ps5pct(i)} % de la puissance d'une PS5 en 1440p · ${i.vram} Go de mémoire vidéo · ${i.w} W`);
+    if(i.idx) lines.push(`<span data-gl="${i.id}">${gpuLine(i)}</span>`);
     if(i.where) lines.push(`Où : ${i.where}${i.km?` (≈ ${i.km} km de Vincennes)`:""}`);
     if(i.age) lines.push(`Mise en ligne il y a ${i.age}`);
     if(i.seller) lines.push(`Vendeur : ${i.seller}`);
@@ -847,6 +879,7 @@ function renderRank(){
     if(i.deal) b.push('<span class="chip good">bonne affaire</span>');
     if(i.idf) b.push('<span class="chip">près de Vincennes</span>');
     if(isRisky(i)) b.push('<span class="chip bad">risque</span>');
+    if(i.vramGames&&i.vramGames.length) b.push(`<span class="chip warn">mémoire vidéo juste (${i.vramGames.length} jeu${i.vramGames.length>1?"x":""})</span>`);
     if(c.key==="ram"&&i.dimm==="?") b.push('<span class="chip warn">format à vérifier</span>');
     return `<tr class="${mine?"mine":n===0&&(k==="val"||(k==="gain"&&G[i.id].g>0))?"hl":""}"><td class="rk">${n+1}</td><td><strong>${i.n}</strong><div class="chips">${b.join("")}</div></td><td class="small muted">${i.where||""}</td><td class="r num">${eur0(cost(i,false))}${priceTrend(i)}</td><td><div class="pwb"><div class="bar" aria-hidden="true"><i style="width:${i.pw*10}%"></i></div><span class="num">${fmt1(i.pw)}</span></div></td><td class="r num"><strong>${fmt1(i.val)}</strong></td><td class="r gain">${mine?'<span class="muted">—</span>':`<span class="${G[i.id].g>0?"hi":G[i.id].g<0?"lo":"muted"}">${G[i.id].g>0?"+":""}${G[i.id].g} %</span><div class="small muted">${G[i.id].ex>=0?"+":"−"}${eur0(Math.abs(G[i.id].ex))}${G[i.id].bad?" · ✖ pièce à changer":""}</div>`}</td><td>${mine?'<button type="button" class="r-add" disabled>Dans ta config</button>':`<button type="button" class="r-add" data-cat="${c.key}" data-id="${i.id}">Mettre dans ma config</button>`}</td></tr>`;}).join("")}</tbody>`;
 }
@@ -998,8 +1031,10 @@ function catalogue(){
   return CATS.map(c=>c.label+" :\n"+c.items.map(i=>`- ${i.id} | ${i.n} | ${i.src==="none"?"0":cost(i,false).toFixed(2)} € livré${i.idf?` | ${i.price} € en main propre près de Vincennes`:""}${i.cote?` | cote ${i.cote} €`:""}${i.seller?` | vendeur ${i.seller}`:""}${i.age?` | en ligne depuis ${i.age}`:""}${i.idx?` | ≈ ${ps5pct(i)} % d'une PS5 en 1440p, ${i.vram} Go, ${i.w} W`:""}${i.cpuF?` | facteur CPU ${i.cpuF}, ${i.watt} W, ventirad ${i.cooler===true?"inclus":i.cooler===false?"non":"?"}`:""}${i.watt&&!i.cpuF?` | ${i.watt} W`:""}${i.gb?` | ${i.gb} Go, ${i.sticks||"?"} barrette(s), format ${i.dimm==="ok"?"PC fixe confirmé":"NON vérifié"}`:""}${i.slots?` | ${i.slots} emplacements RAM`:""}${i.risk?` | RISQUE : ${i.risk}`:""}${i.ask?` | ${i.ask}`:""} | ${i.where||""}`).join("\n")).join("\n\n");
 }
 
+let lastView="";
 function render(){
   const pk=pickupEl.checked;
+  const vk=JSON.stringify(VIEW); if(vk!==lastView){ lastView=vk; rescore(); refreshScores(); }
   document.querySelectorAll(".opt").forEach(o=>{const on=sel[o.dataset.cat]===o.dataset.id;o.classList.toggle("on",on);o.querySelector(".pick").setAttribute("aria-pressed",String(on));});
   const t=total(sel,pk), tl=total(sel,false), p=perf(sel);
   document.getElementById("t-total").textContent=eur(t);
