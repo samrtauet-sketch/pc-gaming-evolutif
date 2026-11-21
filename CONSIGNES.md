@@ -25,12 +25,12 @@ Si un site est inaccessible (domaine non autorisé, 403), passe aux autres sourc
 - **Pièces sensibles neuves** : alimentation, carte mère, SSD. Pas d'occasion pour celles-ci (sauf carte mère neuve vendue sur Vinted).
 - Petites pièces (pâte thermique, câbles, clé USB…) : neuves (l'occasion ne fait gagner que 1 ou 2 €).
 - **Arnaques** : prix plus de 40 % sous la cote → `"risk"`. Vendeur sans avis + prix bas → `"risk"`. Paiement hors plateforme demandé → n'ajoute pas l'annonce.
-- Préfère les annonces **livrables** (envoi possible). En Île-de-France : `"idf": 1` et `"km"` (distance approximative de Vincennes).
+- **Livraison obligatoire si l'annonce n'est pas à côté de Vincennes** (plus de 15 km, ou hors Île-de-France) : n'ajoute une annonce Leboncoin éloignée que si l'envoi est proposé (« Livraison possible », bouton « Acheter »), et mets alors `"livr": 1`. Remise en main propre seulement : `"livr": 0`, et si elle est à plus de 15 km, ne l'ajoute pas (supprime-la si elle y est). En Île-de-France, mets toujours `"idf": 1` et `"km"` (distance approximative de Vincennes). Vinted et le neuf sont toujours livrés. `construire.py` n'affiche pas les annonces Leboncoin à plus de 15 km (ou sans `km`) qui n'ont pas `"livr": 1` : vérifie la livraison de chacune.
 - Ne contacte aucun vendeur, ne te connecte à aucun compte, n'écris aucune donnée personnelle (nom, téléphone, adresse) : seulement la ville et le département.
 
 ## Format d'une annonce
 
-Champs communs : `id` (2 à 20 caractères a-z0-9, unique), `n` (nom), `src` (`lbc` | `vinted` | `new` | `none`), `price` (€), `port` (frais de port, obligatoire pour lbc/vinted), `where` (ville (dép.) ou site + date du prix), `url` (https://), `age`, `seller` (« 4,8/5 (20 avis) »), `cote` (prix habituel d'occasion), `idf`, `km`, `note`, `ask`, `risk`, `deal: 1` (bonne affaire), `est: 1` (frais de port estimés).
+Champs communs : `id` (2 à 20 caractères a-z0-9, unique), `n` (nom), `src` (`lbc` | `vinted` | `new` | `none`), `price` (€), `port` (frais de port, obligatoire pour lbc/vinted), `where` (ville (dép.) ou site + date du prix), `url` (https://), `age`, `seller` (« 4,8/5 (20 avis) »), `cote` (prix habituel d'occasion), `idf`, `km`, `note`, `ask`, `risk`, `deal: 1` (bonne affaire), `est: 1` (frais de port estimés), `livr` (1 = envoi possible, 0 = main propre seulement ; obligatoire pour lbc).
 
 Par catégorie :
 - `cpu` : `cpuF` (1,0 = Ryzen 5 3600 ; 1,22 = 5600X ; 1,5 = 5800X3D), `watt`, `cooler` (true / false / "?"), `pcie3: 1` si PCIe 3.0 seulement (5500, 5600G…).

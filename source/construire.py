@@ -14,6 +14,7 @@ TETE = ('<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="
         f'<meta http-equiv="Content-Security-Policy" content="{CSP}"><meta name="referrer" content="no-referrer">'
         '<meta name="robots" content="noindex"></head><body>\n')
 NUM = (int, float)
+PRES_KM = 15            # « à côté de Vincennes » : 15 km au plus (sinon il faut la livraison)
 CATS_OK = ["cpu", "mb", "ram", "gpu", "ssd", "psu", "case", "cool", "fans", "wifi", "paste", "usb", "win", "strip", "tools", "screen", "dp", "kb"]
 # champs obligatoires (en plus de id, n, src, price, where) pour une vraie offre de chaque catégorie
 REQUIS = {"cpu": {"cpuF": NUM, "watt": NUM}, "gpu": {"idx": NUM, "vram": NUM, "w": NUM},
@@ -91,7 +92,33 @@ def main():
             if c.get("key") == "ram" and i.get("dimm") == "ok" and not i.get("why"):
                 err(f"{ou} : dimm ok sans justification (why)")
     # pièces utilisées par la page (configs prêtes, montage par défaut) : elles doivent exister
-    for cat, pid in set(re.findall(r'\b(' + "|".join(CATS_OK) + r'):"([a-z0-9]+)"', page)):
+    utilisees = set(re.findall(r'\b(' + "|".join(CATS_OK) + r'):"([a-z0-9]+)"', page))
+    # Livraison : une annonce Leboncoin loin de Vincennes (plus de PRES_KM km, ou
+    # distance inconnue) n'est affichée que si l'envoi est confirmé ("livr": 1).
+    # Vinted livre toujours ; le neuf aussi. (Gardée seulement si une config
+    # prête l'utilise, avec un avertissement.)
+    retirees = []
+    for c in cats:
+        if not isinstance(c.get("items"), list):
+            continue
+        garde = []
+        for i in c["items"]:
+            km = i.get("km")
+            pres = isinstance(km, NUM) and km <= PRES_KM
+            if i.get("src") == "lbc" and not pres and i.get("livr") != 1:
+                if (c.get("key"), i.get("id")) in utilisees:
+                    i = dict(i, risk=i.get("risk") or "livraison non confirmée et loin de Vincennes : demande l'envoi au vendeur")
+                else:
+                    retirees.append(i.get("id"))
+                    continue
+            garde.append(i)
+        c["items"] = garde
+        if not garde:
+            err(f"{c.get('key')} : plus aucune annonce livrable ou proche de Vincennes")
+    ids = {i.get("id"): c.get("key") for c in cats if isinstance(c.get("items"), list) for i in c["items"]}
+    if retirees:
+        print(f"{len(retirees)} annonce(s) Leboncoin loin de Vincennes sans livraison confirmée, non affichées : {', '.join(retirees)}")
+    for cat, pid in utilisees:
         if ids.get(pid) != cat:
             err(f"la page utilise {cat} « {pid} » (config prête ou montage par défaut) : cette annonce doit rester dans annonces.json, ou il faut modifier la config dans page.html")
     if erreurs:
