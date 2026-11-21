@@ -65,7 +65,7 @@ button{font:inherit;cursor:pointer}
 .opt .nm{font-weight:600;font-size:.9rem;line-height:1.25}
 .opt .pr strong{font-family:var(--ff-mono);font-size:1.05rem}
 .scores{display:grid;grid-template-columns:auto minmax(40px,1fr) auto;gap:4px 8px;align-items:center;font-size:.74rem;color:var(--muted)}
-.scores .bar{height:6px}
+.scores .bar{height:6px;display:block}
 .scores b.sc{position:static;width:auto;background:none;opacity:1;font-family:var(--ff-mono);color:var(--fg);font-weight:600}
 .opt .more{border:0;border-top:1px solid var(--line);background:transparent;color:var(--accent);padding:8px 12px;text-align:left;font-size:.8rem;font-weight:600}
 .opt .more:hover{background:var(--sunk)}
@@ -260,14 +260,14 @@ details.why p{margin-top:8px}
 </header>
 
 <nav class="tabs" role="tablist" aria-label="Parties du site">
-  <button type="button" role="tab" data-tab="config" aria-controls="h-build">🛠 Configurateur</button>
-  <button type="button" role="tab" data-tab="classement" aria-controls="h-rank">🏆 Classement prix/perf</button>
-  <button type="button" role="tab" data-tab="configs" aria-controls="h-presets">📦 Configs prêtes</button>
-  <button type="button" role="tab" data-tab="conseils" aria-controls="h-safe">🛡 Conseils d'achat</button>
+  <button type="button" role="tab" data-tab="config" aria-controls="sec-build check-sec ai-sec">🛠 Configurateur</button>
+  <button type="button" role="tab" data-tab="classement" aria-controls="sec-rank">🏆 Classement prix/perf</button>
+  <button type="button" role="tab" data-tab="configs" aria-controls="sec-presets">📦 Configs prêtes</button>
+  <button type="button" role="tab" data-tab="conseils" aria-controls="sec-hs sec-hist sec-safe">🛡 Conseils d'achat</button>
 </nav>
 
 <!-- CONFIGURATEUR -->
-<section data-tab="config" role="tabpanel" aria-labelledby="h-build">
+<section data-tab="config" role="tabpanel" aria-labelledby="h-build" id="sec-build">
   <div class="sec-head">
     <span class="eyebrow">Configurateur</span>
     <h2 id="h-build">Compose ton PC</h2>
@@ -370,7 +370,7 @@ details.why p{margin-top:8px}
 </section>
 
 <!-- CLASSEMENT -->
-<section data-tab="classement" role="tabpanel" aria-labelledby="h-rank">
+<section data-tab="classement" role="tabpanel" aria-labelledby="h-rank" id="sec-rank">
   <div class="sec-head">
     <span class="eyebrow">Notes gaming</span>
     <h2 id="h-rank">Classement des composants</h2>
@@ -390,7 +390,7 @@ details.why p{margin-top:8px}
 </section>
 
 <!-- CONFIGS PRETES -->
-<section data-tab="configs" role="tabpanel" aria-labelledby="h-presets">
+<section data-tab="configs" role="tabpanel" aria-labelledby="h-presets" id="sec-presets">
   <div class="sec-head">
     <span class="eyebrow">Plusieurs budgets</span>
     <h2 id="h-presets">Les configs toutes prêtes</h2>
@@ -400,7 +400,7 @@ details.why p{margin-top:8px}
 </section>
 
 <!-- CARTES HS -->
-<section data-tab="conseils" role="tabpanel" aria-labelledby="h-hs">
+<section data-tab="conseils" role="tabpanel" aria-labelledby="h-hs" id="sec-hs">
   <div class="sec-head">
     <span class="eyebrow">Cartes en panne</span>
     <h2 id="h-hs">Cartes graphiques « pour pièces »</h2>
@@ -420,7 +420,7 @@ details.why p{margin-top:8px}
 </section>
 
 <!-- HISTORIQUE -->
-<section data-tab="conseils" role="tabpanel" aria-labelledby="h-hist">
+<section data-tab="conseils" role="tabpanel" aria-labelledby="h-hist" id="sec-hist">
   <div class="sec-head">
     <span class="eyebrow">Historique des prix</span>
     <h2 id="h-hist">Acheter maintenant ou attendre ?</h2>
@@ -433,7 +433,7 @@ details.why p{margin-top:8px}
 </section>
 
 <!-- SECURITE -->
-<section data-tab="conseils" role="tabpanel" aria-labelledby="h-safe">
+<section data-tab="conseils" role="tabpanel" aria-labelledby="h-safe" id="sec-safe">
   <div class="sec-head">
     <span class="eyebrow">Ne pas se faire arnaquer</span>
     <h2 id="h-safe">Règles d'achat</h2>
@@ -715,7 +715,7 @@ const SPECS=Object.assign(SPECS_X,{
  r16c:["16 Go DDR4 3200 MHz","Format à confirmer : 2×8 Go (dual channel, mieux) ou 1×16 Go","Doit être DIMM 288 broches (PC fixe)"],
  r16m:["16 Go (2×8 Go) DDR4 3200 MHz, dual channel","DIMM 288 broches à confirmer","1,2 à 1,35 V"],
  r16n:["16 Go (2×8 Go) DDR4 3200 MHz CL16","DIMM 288 broches, 1,35 V, profil XMP","Dissipateur bas (compatible gros ventirads), garantie à vie"],
- r32h:["32 Go (2×16 Go) DDR4 2666 MHz","Barrettes Samsung nues : souvent SO-DIMM (portable) ou ECC (serveur)","2666 MHz : un peu plus lent que 3200 (≈ −2 % en jeu)"],
+ r32h:["32 Go (2×16 Go) DDR4 2666 MHz","Barrettes Samsung nues : souvent SO-DIMM (portable) ou ECC (serveur)","2666 MHz : un peu plus lent que 3200 (≈ −3 % en jeu)"],
  r32o:["32 Go (2×16 Go) DDR4, dual channel","Fréquence à demander (idéal : 3200 ou 3600)","DIMM 288 broches à confirmer"],
  g2060:["Architecture NVIDIA Turing, 1 920 cœurs CUDA","6 Go GDDR6, bus 192 bits","Ray tracing + DLSS 2","≈ 160 W, 1 connecteur 8 broches","HDMI 2.0 + DisplayPort 1.4"],
  g2060s:["Turing, 2 176 cœurs CUDA","8 Go GDDR6, bus 256 bits","Ray tracing + DLSS 2","≈ 175 W, 1 connecteur 8 broches","Ventus : double ventilateur, ≈ 23 cm"],
@@ -729,7 +729,7 @@ const SPECS=Object.assign(SPECS_X,{
  g3060tip:["Ampere, 4 864 cœurs CUDA","8 Go GDDR6, 256 bits","Ray tracing 2e gén. + DLSS 2","≈ 200 W, 1 connecteur 8 broches"],
  g6700xt:["RDNA 2, 40 unités de calcul","12 Go GDDR6, 192 bits + 96 Mo Infinity Cache","PCIe 4.0 x16","≈ 230 W, 8 + 6 broches","FSR 3"],
  g6700xti:["RDNA 2, 40 unités de calcul","12 Go GDDR6, 192 bits + 96 Mo Infinity Cache","PCIe 4.0 x16","≈ 230 W, 8 + 6 broches","FSR 3"],
- g3070:["Ampere, 5 888 cœurs CUDA","8 Go GDDR6, 256 bits","Ray tracing 2e gén. + DLSS 2","≈ 220 W, 8 + 8 broches (Gaming OC)","Triple ventilateur, ≈ 28 cm"],
+ g3070:["Ampere, 5 888 cœurs CUDA","8 Go GDDR6, 256 bits","Ray tracing 2e gén. + DLSS 2","≈ 220 W, 8 + 6 broches (Gaming OC)","Triple ventilateur, ≈ 28 cm"],
  g6800:["RDNA 2, 60 unités de calcul","16 Go GDDR6, 256 bits + 128 Mo Infinity Cache","PCIe 4.0 x16","≈ 250 W (Nitro+ OC ≈ 290 W), 2 × 8 broches, alim 750 W conseillée par Sapphire","Nitro+ : triple ventilateur, 310 mm, ≈ 2,7 slots","FSR 3"],
  g6800xt:["RDNA 2, 72 unités de calcul","16 Go GDDR6, 256 bits + 128 Mo Infinity Cache","PCIe 4.0 x16","≈ 300 W, 2 × 8 broches","FSR 3"],
  g3080:["Ampere, 8 704 cœurs CUDA","10 Go GDDR6X, 320 bits","Ray tracing 2e gén. + DLSS 2","≈ 320-340 W, 3 × 8 broches (Strix), alim 850 W conseillée","Strix : 319 mm, 2,9 slots"],
@@ -821,7 +821,7 @@ function refreshScores(){
   document.querySelectorAll("[data-gl]").forEach(e=>{const i=ITEM[e.dataset.gl]; if(i) e.textContent=gpuLine(i);});
   document.querySelectorAll("[data-vchip]").forEach(e=>{const i=ITEM[e.dataset.vchip]; const n=i&&i.vramGames?i.vramGames.length:0; e.hidden=!n; e.textContent=n?`mémoire vidéo juste (${n} jeu${n>1?"x":""})`:"";});
 }
-const scoreRow=(lbl,v)=>`<span>${lbl}</span><div class="bar" aria-hidden="true"><i style="width:${v*10}%"></i></div><b class="sc">${fmt1(v)}/10</b>`;
+const scoreRow=(lbl,v)=>`<span>${lbl}</span><span class="bar" aria-hidden="true"><i style="width:${v*10}%"></i></span><b class="sc">${fmt1(v)}/10</b>`;
 
 /* Rendu des bacs */
 let sel={...(PRESETS.find(p=>p.pick&&!p.risky.length)||PRESETS.find(p=>!p.risky.length)||PRESETS[0]).sel};
@@ -829,7 +829,7 @@ const bins=document.getElementById("bins");
 CATS.forEach(c=>{
   const b=document.createElement("div"); b.className="bin";
   if(c.head){const h=document.createElement("h3");h.className="group-head";h.textContent=c.head;bins.appendChild(h);}
-  b.innerHTML=`<div class="bin-head"><h3>${c.label}</h3></div><div class="opts" role="radiogroup" aria-label="${c.label}"></div>`;
+  b.innerHTML=`<div class="bin-head"><h3>${c.label}</h3></div><div class="opts" role="group" aria-label="${c.label}"></div>`;
   const opts=b.querySelector(".opts");
   [...c.items].sort((a,b)=>isRisky(a)-isRisky(b)).forEach(i=>{
     const d=document.createElement("div"); d.className="opt";
@@ -843,7 +843,7 @@ CATS.forEach(c=>{
     if(i.cat==="ram"&&i.dimm==="?") chips.push(`<span class="chip warn">fixe ou portable ?</span>`);
     if(i.cat==="ram"&&i.sticks) chips.push(`<span class="chip">${i.sticks==="?"?"nb de barrettes ?":i.sticks+" barrettes"}</span>`);
     if(i.slots) chips.push(`<span class="chip ${i.slots===4?"good":i.slots===2?"warn":""}">${i.slots==="?"?"slots RAM ?":i.slots+" slots RAM"}</span>`);
-    const scores=i.pw!=null?`<div class="scores" data-sc="${i.id}">${scoreRow("Puissance",i.pw)}${scoreRow("Prix / puissance",i.val)}</div>`:"";
+    const scores=i.pw!=null?`<span class="scores" data-sc="${i.id}">${scoreRow("Puissance",i.pw)}${scoreRow("Prix / puissance",i.val)}</span>`:"";
     const lines=[];
     if(i.idx) lines.push(`<span data-gl="${i.id}">${gpuLine(i)}</span>`);
     if(i.where) lines.push(`Où : ${i.where}${i.km?` (≈ ${i.km} km de Vincennes)`:""}`);
@@ -1122,10 +1122,10 @@ function renderTable(){
   const pk=pickupEl.checked;
   const rows=PRESETS.map((p,k)=>({p,k,t:total(p.sel,false),tp:total(p.sel,true),perf:perf(p.sel).avg})).sort((a,b)=>(a.p.risky.length>0)-(b.p.risky.length>0)||a.t-b.t);
   document.getElementById("ptable").innerHTML=`<thead><tr><th>Config</th><th>Processeur</th><th>Carte graphique</th><th>RAM</th><th>SSD</th><th>Alim.</th><th class="r">Tout livré</th><th class="r">Main propre IDF</th><th class="r">Perf. / PS5</th><th class="r">€ / point</th></tr></thead><tbody>`+
-   rows.map(r=>`<tr class="${r.p.pick?'hl':''}" style="cursor:pointer" data-k="${r.k}" tabindex="0"><td><strong>${r.p.name}</strong><div class="small muted">${r.p.tag}</div>${r.p.risky.length?`<div class="small lo">⚠ annonce à vérifier : ${r.p.risky.join(" ; ")}</div>`:""}</td><td>${ITEM[r.p.sel.cpu].n}</td><td>${ITEM[r.p.sel.gpu].n}</td><td>${ITEM[r.p.sel.ram].gb} Go</td><td>${ITEM[r.p.sel.ssd].n.replace(/ \(.*\)/,"")}</td><td>${ITEM[r.p.sel.psu].watt} W</td>
+   rows.map(r=>`<tr class="${r.p.pick?'hl':''}" style="cursor:pointer" data-k="${r.k}" tabindex="0" role="button" aria-label="Charger la config ${r.p.name}"><td><strong>${r.p.name}</strong><div class="small muted">${r.p.tag}</div>${r.p.risky.length?`<div class="small lo">⚠ annonce à vérifier : ${r.p.risky.join(" ; ")}</div>`:""}</td><td>${ITEM[r.p.sel.cpu].n}</td><td>${ITEM[r.p.sel.gpu].n}</td><td>${ITEM[r.p.sel.ram].gb} Go</td><td>${ITEM[r.p.sel.ssd].n.replace(/ \(.*\)/,"")}</td><td>${ITEM[r.p.sel.psu].watt} W</td>
    <td class="r num"><strong>${eur0(r.t)}</strong></td><td class="r num">${eur0(r.tp)}</td><td class="r num ${r.perf<85?'lo':r.perf>=100?'hi':''}">${r.perf} %</td><td class="r num">${((pk?r.tp:r.t)/r.perf).toLocaleString("fr-FR",{maximumFractionDigits:2})} €</td></tr>`).join("")+`</tbody>`;
   document.querySelectorAll("#ptable tbody tr").forEach(tr=>{
-    tr.addEventListener("keydown",e=>{if(e.key==="Enter")tr.click();});
+    tr.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();tr.click();}});
   });
 }
 /* Onglets : #config, #classement, #configs, #conseils (lien partageable, bouton Retour) */
@@ -1205,6 +1205,11 @@ function simulate(acts){
 const SECTIONS={configurateur:"h-build",fiche:"sheet",verificateur:"h-check",ia:"h-ai",classement:"h-rank",configs:"h-presets",hs:"h-hs",historique:"h-hist",securite:"h-safe"};
 const FILTRES={ram_pc_fixe:["f-dimm","dimm"],quatre_emplacements:["f-slots","slots"],pres_vincennes:["f-idf","idf"],masquer_risquees:["f-safe","safe"]};
 function snapshot(){return {sel:{...sel},pk:pickupEl.checked,V:{...VIEW},F:{...F},q:document.getElementById("f-q").value};}
+/* remet l'état d'avant seulement pour ce que Claude a changé ; garde les changements faits à la main depuis */
+function undoOnly(B,A,N){
+  const m=(b,a,n)=>{const o={...n};Object.keys(b).forEach(k=>{if(n[k]===a[k])o[k]=b[k];});return o;};
+  return {sel:m(B.sel,A.sel,N.sel),pk:N.pk===A.pk?B.pk:N.pk,V:m(B.V,A.V,N.V),F:m(B.F,A.F,N.F),q:N.q===A.q?B.q:N.q};
+}
 function restore(S){
   sel={...S.sel}; pickupEl.checked=S.pk; Object.assign(VIEW,S.V); document.getElementById("upsc").value=String(VIEW.up); document.getElementById("rt").checked=VIEW.rt; document.getElementById("fg").checked=VIEW.fg; Object.assign(F,S.F);
   document.getElementById("f-q").value=S.q; document.getElementById("f-max").value=String(S.F.max);
@@ -1470,7 +1475,7 @@ async function ask(q){
   if(base===null){ cctl=null; send.disabled=false; }
   if(base!==null){
     const d=bubble("a","Claude réfléchit…");
-    let t, res=null, before=snapshot();
+    let t, res=null, before=null, after=null;
     try{
       let j=await remoteAsk(base,q,r.text,turns,cctl.signal);
       if(j.actions.length){
@@ -1481,7 +1486,7 @@ async function ask(q){
           j=j2; sim=j.actions.length?simulate(j.actions):null;
         }
         if(sim&&sim.newBad.length){ t=j.texte+"\n\n✖ Je n'ai rien changé sur la page : ces changements rendraient la config incompatible ("+sim.newBad.map(x=>x[1]).join(", ")+")."; }
-        else { t=j.texte; if(j.actions.length) res=applyActions(j.actions); }
+        else { t=j.texte; if(j.actions.length){ before=snapshot(); res=applyActions(j.actions); after=snapshot(); } }
       } else t=j.texte;
     }
     catch(e){ t=r.text+"\n\n(Claude indisponible : "+(e.name==="AbortError"?"arrêté":e.message)+" Réponse calculée par l'assistant du site.)"; d.classList.add("err"); }
@@ -1491,7 +1496,7 @@ async function ask(q){
       t+=(res.done.length?"\n\n✔ Sur la page : "+res.done.join(" · ")+`\nNouvelle config : ${eur(total(sel,pickupEl.checked))}, ${perf(sel).avg} % d'une PS5, vérificateur : ${nb?nb+" problème(s)":nw?nw+" réserve(s)":"compatible"}.`:"")+(res.bad.length?"\n\n✖ Ignoré : "+res.bad.join(" · "):"");
     }
     d.textContent=t;
-    if(res&&res.done.length){ const b=document.createElement("button");b.type="button";b.className="cp";b.textContent="↶ Annuler ces changements";b.addEventListener("click",()=>{restore(before);b.textContent="Annulé ✔";b.disabled=true;});d.appendChild(b); }
+    if(res&&res.done.length){ const b=document.createElement("button");b.type="button";b.className="cp";b.textContent="↶ Annuler ces changements";b.addEventListener("click",()=>{restore(undoOnly(before,after,snapshot()));b.textContent="Annulé ✔";b.disabled=true;});d.appendChild(b); }
     else if(r.sel) addLoad(d,r.sel);
     addCopy(d,t);
     turns.push({role:"user",content:q},{role:"assistant",content:t}); if(turns.length>12) turns=turns.slice(-12);
