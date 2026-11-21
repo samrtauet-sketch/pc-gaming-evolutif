@@ -308,6 +308,12 @@ details.why p{margin-top:8px}
         <span class="eyebrow">Calculateur prix / perf</span>
         <div class="calc-in"><label class="ctl">Jeu par jour <select id="c-h"><option value="1">1 h</option><option value="2" selected>2 h</option><option value="4">4 h</option><option value="6">6 h</option></select></label>
         <label class="ctl">Électricité <input id="c-kwh" type="number" min="0.05" max="1" step="0.01" value="0.25" inputmode="decimal"> €/kWh</label></div>
+        <span class="eyebrow">Amortissement face à une PS5</span>
+        <div class="calc-in"><label class="ctl">PS5 <select id="c-ps5"><option value="649.99">avec lecteur, 649,99 €</option><option value="599.99">Digital, 599,99 €</option></select></label>
+        <label class="ctl">PS Plus <select id="c-psp"><option value="0">aucun</option><option value="71.99" selected>Essential, 71,99 €/an</option><option value="125.99">Extra, 125,99 €/an</option><option value="151.99">Premium, 151,99 €/an</option></select></label>
+        <label class="ctl">Jeux achetés par an <select id="c-jeux"><option value="0" selected>0</option><option value="2">2</option><option value="4">4</option><option value="6">6</option><option value="10">10</option></select></label></div>
+        <div class="calc-out" id="t-amort"></div>
+        <span class="small muted">Prix Sony officiels de novembre 2026. PS Plus (obligatoire pour jouer en ligne sur PS5) : tarif 12 mois hors promo. Sur PC, le jeu en ligne est gratuit. Jeux : environ 15 € de moins par jeu sur PC (soldes Steam, clés), estimation. Écran et périphériques non comptés, ni côté PC ni côté PS5.</span>
         <div class="calc-out" id="t-calc"></div>
       </div>
       <div class="games" id="t-games"></div>
@@ -594,6 +600,24 @@ function renderBalance(p,t){
     ["Consommation en jeu",`≈ ${wGame} W (PS5 : ≈ 200 W)`],[`Électricité par an (${h} h/jour)`,`${eur0(yr)} (PS5 : ${eur0(ps5yr)})`],
     ["Coût sur 3 ans (achat + électricité)",eur0(t+yr*3)]
   ].map(([a,v])=>`<span>${a}</span><b>${v}</b>`).join("");
+  // Amortissement : PC (sans périphériques) contre PS5 + PS Plus
+  const pk=pickupEl.checked, pcBox=t-CATS.filter(c=>c.peri).reduce((a,c)=>a+cost(ITEM[sel[c.key]],pk),0);
+  const ps5=+document.getElementById("c-ps5").value||649.99, psp=+document.getElementById("c-psp").value||0, jeux=+document.getElementById("c-jeux").value||0;
+  const gap=pcBox-ps5, perMonth=psp/12+jeux*15/12-(yr-ps5yr)/12;
+  let am;
+  if(gap<=0) am=`tout de suite : le PC coûte ${eur0(-gap)} de moins que la PS5`;
+  else if(perMonth<=0) am="jamais : sans PS Plus ni jeux, le PC coûte plus cher (électricité)";
+  else { const m=Math.ceil(gap/perMonth), d=new Date(); d.setMonth(d.getMonth()+m);
+    am=`${m} mois${m>=12?` (≈ ${(m/12).toLocaleString("fr-FR",{maximumFractionDigits:1})} ans)`:""}, vers ${d.toLocaleDateString("fr-FR",{month:"long",year:"numeric"})}`; }
+  const c3pc=pcBox+yr*3, c3ps=ps5+ps5yr*3+psp*3+jeux*15*3;
+  document.getElementById("t-amort").innerHTML=[
+    ["PS Plus par mois",psp?`${eur(psp/12)} (${eur(psp)} par an)`:"aucun"],
+    ["Électricité : PC en plus par mois",`${eur((yr-ps5yr)/12)}`],
+    ["Le PC fait économiser par mois",perMonth>0?eur(perMonth):"rien"],
+    [`Écart à l'achat (PC ${eur0(pcBox)} − PS5)`,`${gap>=0?"+":"−"}${eur0(Math.abs(gap))}`],
+    ["PC amorti en",`<strong>${am}</strong>`],
+    ["Sur 3 ans : PC / PS5",`${eur0(c3pc)} / ${eur0(c3ps)}`]
+  ].map(([a,v])=>`<span>${a}</span><b>${v}</b>`).join("");
 }
 function total(sel,pickup){return Object.values(sel).reduce((s,id)=>s+(ITEM[id]?cost(ITEM[id],pickup):0),0);}
 function notes(sel){
@@ -833,7 +857,7 @@ pickupEl.addEventListener("change",()=>{render();renderTable();});
 document.getElementById("upsc").addEventListener("change",e=>{VIEW.up=+e.target.value;render();renderTable();});
 document.getElementById("rt").addEventListener("change",e=>{VIEW.rt=e.target.checked;render();renderTable();});
 document.getElementById("fg").addEventListener("change",e=>{VIEW.fg=e.target.checked;render();renderTable();});
-["c-h","c-kwh"].forEach(id=>document.getElementById(id).addEventListener("input",()=>render()));
+["c-h","c-kwh","c-ps5","c-psp","c-jeux"].forEach(id=>document.getElementById(id).addEventListener("input",()=>render()));
 
 /* Filtres : la pièce sélectionnée reste toujours visible */
 const F={q:"",max:0,dimm:true,idf:false,safe:false,slots:false};
