@@ -265,7 +265,7 @@ details.why p{margin-top:8px}
   <h1>Mon PC Gaming Évolutif</h1>
   <p class="muted">Choisis une config toute prête, ou clique sur les pièces pour composer la tienne. Le prix livré, les performances face à la PS5 et la compatibilité se calculent en direct. Les vendeurs à 15 km ou moins sont marqués « près de Vincennes » : c'est l'option la plus sûre, avec une remise en main propre et un test. Ailleurs en Île-de-France, la main propre reste possible si tu peux t'y déplacer.</p>
   <div class="chips">
-    <span class="chip good">Date et âge sur chaque annonce</span>
+    <span class="chip good">Date de relevé sur chaque annonce</span>
     <span class="chip">Livraison et frais compris</span>
     <span class="chip warn">Livraison à confirmer avec chaque vendeur Leboncoin</span>
     <span class="chip good">RAM : format PC fixe vérifié</span>
@@ -616,15 +616,15 @@ function balance(S,p){
     let best=null; CATS.find(c=>c.key==="cpu").items.forEach(i=>{ if(i.id===S.cpu||isRisky(i)) return; const T={...S,cpu:i.id}; if(compat(T).some(x=>x[0]==="bad")) return;
       const g=perf(T).avg-p.avg, ex=cost(i,false)-cost(cpu,false); if(g>=3&&(!best||g/Math.max(ex,1)>best.g/Math.max(best.ex,1))) best={i,g,ex}; });
     L.push(["warn",`${cpu.n} limite les images/s dans ${cpuG.map(x=>GAMES[p.games.indexOf(x)].n).join(", ")} : la carte graphique perd environ ${lost} % de sa puissance dans ces jeux.${best?` Meilleur remède : ${best.i.n} (+${best.g} % pour ${best.ex>=0?"+":"−"}${eur0(Math.abs(best.ex))}).`:""} Monter en résolution ou activer le ray tracing utilise mieux la carte, pour une perte d'images/s faible.`]);
-  } else if(cpuG.length>=4) L.push(["good",`Processeur et carte graphique bien assortis : le processeur limite un peu dans ${cpuG.length} jeux, mais la carte est utilisée à ${use} %.`]);
-  else if(cpuG.length) L.push(["good",`Le processeur limite seulement ${cpuG.map(x=>GAMES[p.games.indexOf(x)].n).join(", ")} : c'est normal pour ces jeux très exigeants côté processeur.`]);
+  } else if(cpuG.length>=4) L.push(["good",`Le processeur limite un peu dans ${cpuG.length} jeux, mais la carte graphique est utilisée à ${use} %.`]);
+  else if(cpuG.length) L.push(["good",`Le processeur limite seulement ${cpuG.map(x=>GAMES[p.games.indexOf(x)].n).join(", ")} : c'est normal pour ${cpuG.length>1?"ces jeux très exigeants":"ce jeu très exigeant"} côté processeur.`]);
   if(cpuG.length===0&&cost(cpu,false)>cost(gpu,false)*0.8&&gpu.idx<110){ T.warn=T.warn||"Processeur surdimensionné pour cette carte graphique";
     L.push(["warn",`Le processeur coûte presque autant que la carte graphique : en jeu, c'est la carte qui compte le plus. Un processeur moins cher et une meilleure carte donneraient plus d'images/s.`]); }
   const w=gpu.w+cpu.watt+75, need=w*1.5, rec=GPUREC[gpu.id]||gpu.psurec||0;
   if(psu.watt<need){ T.bad=T.bad||"L'alimentation n'est pas assez puissante";
-    L.push(["bad",`L'alimentation n'est pas assez puissante : ${psu.watt} W pour environ ${Math.round(w)} W consommés, avec des pics bien plus hauts. Il faut au moins ${Math.ceil(need/50)*50} W${rec>need?` (${rec} W conseillés par le fabricant)`:""}.`]); }
-  else if(psu.watt<rec){ T.warn=T.warn||"Alimentation un peu juste"; L.push(["warn",`Alimentation juste : ${psu.watt} W suffisent pour ≈ ${Math.round(w)} W, mais le fabricant de la carte conseille ${rec} W pour les pics.`]); }
-  else L.push(["good",`Alimentation : ${psu.watt} W pour ≈ ${Math.round(w)} W en jeu, marge de ${Math.round((psu.watt/w-1)*100)} %.`]);
+    L.push(["bad",`L'alimentation n'est pas assez puissante : ${psu.watt} W pour environ ${Math.round(w)} W au maximum, avec des pics encore plus hauts. Il faut au moins ${Math.ceil(need/50)*50} W${rec>need?` (${rec} W conseillés par le fabricant)`:""}.`]); }
+  else if(psu.watt<rec){ T.warn=T.warn||"Alimentation un peu juste"; L.push(["warn",`Alimentation juste : ${psu.watt} W suffisent pour ≈ ${Math.round(w)} W au maximum, mais le fabricant de la carte conseille ${rec} W pour les pics.`]); }
+  else L.push(["good",`Alimentation : ${psu.watt} W pour ≈ ${Math.round(w)} W au maximum, marge de ${Math.round((psu.watt/w-1)*100)} %.`]);
   const vr=p.games.filter(x=>x.vramHit);
   if(vr.length){ if(vr.length>=2) T.warn=T.warn||`Mémoire vidéo trop petite (${gpu.vram} Go) pour ces réglages`; L.push(["warn",`Mémoire vidéo (${gpu.vram} Go) saturée dans ${vr.length} jeu(x) en ${RESN[VIEW.res]}${VIEW.rt?" avec ray tracing":""} : baisse la qualité des textures${VIEW.up?"":" ou active l'upscaling"}.`]); }
   if(VIEW.rt&&!A.rt) L.push(["warn",`${gpu.n} ne gère pas le ray tracing : le calcul est fait sans.`]);
@@ -882,8 +882,8 @@ CATS.forEach(c=>{
     const lines=[];
     if(i.idx) lines.push(`<span data-gl="${i.id}">${gpuLine(i)}</span>`);
     if(i.where) lines.push(`Où : ${i.where}${i.km?` (≈ ${i.km} km de Vincennes)`:""}`);
-    if(i.age) lines.push(`Mise en ligne il y a ${i.age}`);
-    if(i.seller) lines.push(`Vendeur : ${i.seller}`);
+    if(i.age) lines.push(i.age==="?"?"Date de mise en ligne non relevée":`Mise en ligne il y a ${i.age}`);
+    if(i.seller) lines.push(i.seller==="?"?"Avis du vendeur non relevés : regarde-les sur l'annonce":`Vendeur : ${i.seller}`);
     if(i.src==="lbc"&&i.idf) lines.push(`En main propre${i.km?` (≈ ${i.km} km de Vincennes)`:""} : ${eur(i.price)} (pas de frais, mais pas de protection : teste la pièce avant de payer)`);
     if(i.src==="lbc"||i.src==="vinted") lines.push(`La protection acheteur (0,70 € + 5 % du prix) te rembourse si la pièce n'arrive pas ou ne correspond pas à l'annonce. Elle ne marche que si tu paies sur le site.`);
     if(i.cote) lines.push(`Cote occasion : ${i.cote} € (${i.price<i.cote?"−":"+"}${Math.abs(Math.round((1-i.price/i.cote)*100))} %)`);
@@ -1004,9 +1004,9 @@ function compat(sel){
   else if(gx[1]>pins) L.push(["bad","Câbles carte graphique",`La carte demande ${gx[1]} connecteurs 8 broches, l'alimentation n'en a que ${pins}.${psu.id!=="cx750"?" Prends la CX750 (3 connecteurs).":""}`]);
   else L.push(["ok","Câbles carte graphique",`${gx[1]} connecteur(s) 8 broches nécessaires, ${pins} fournis.`]);
   const need=(gpu.w+cpu.watt+75)*1.5, rec=GPUREC[gpu.id]||gpu.psurec||0;
-  if(psu.watt<need) L.push(["bad","Puissance alimentation",`${psu.watt} W pour environ ${Math.round(gpu.w+cpu.watt+75)} W consommés : il faut au moins ${Math.ceil(need/50)*50} W.`]);
-  else if(psu.watt<rec) L.push(["warn","Puissance alimentation",`${psu.watt} W : suffisant pour ≈ ${Math.round(gpu.w+cpu.watt+75)} W consommés, mais le fabricant de la carte conseille ${rec} W (pics de consommation).${psu.id!=="cx750"&&rec<=750?" Prends la CX750.":rec>750?" Aucune alimentation de la liste n'atteint ce conseil : la CX750 fonctionne, mais une 850 W serait plus sereine.":""}`]);
-  else L.push(["ok","Puissance alimentation",`${psu.watt} W pour environ ${Math.round(gpu.w+cpu.watt+75)} W consommés${rec?` (fabricant de la carte : ${rec} W conseillés)`:""}.`]);
+  if(psu.watt<need) L.push(["bad","Puissance alimentation",`${psu.watt} W pour environ ${Math.round(gpu.w+cpu.watt+75)} W au maximum : il faut au moins ${Math.ceil(need/50)*50} W.`]);
+  else if(psu.watt<rec) L.push(["warn","Puissance alimentation",`${psu.watt} W : suffisant pour ≈ ${Math.round(gpu.w+cpu.watt+75)} W au maximum, mais le fabricant de la carte conseille ${rec} W (pics de consommation).${psu.id!=="cx750"&&rec<=750?" Prends la CX750.":rec>750?" Aucune alimentation de la liste n'atteint ce conseil : la CX750 fonctionne, mais une 850 W serait plus sereine.":""}`]);
+  else L.push(["ok","Puissance alimentation",`${psu.watt} W pour environ ${Math.round(gpu.w+cpu.watt+75)} W au maximum${rec?` (fabricant de la carte : ${rec} W conseillés)`:""}.`]);
   const cmax=(CASEX[cs.id]||{gpu:330}).gpu, cmn=cs.n.replace(/ \(.*\)/,"");
   if(gx[0]>cmax) L.push(["bad","Longueur carte graphique",`≈ ${gx[0]} mm alors que le ${cmn} accepte ${cmax} mm maximum : la carte risque de ne pas rentrer (la longueur exacte dépend du modèle, à vérifier).${cs.id==="forge"?" L'Elite 302 accepte 340 mm avec ses ventilateurs avant.":""}`]);
   else if(gx[0]>cmax-15) L.push(["warn","Longueur carte graphique",`≈ ${gx[0]} mm pour ${cmax} mm maximum dans le ${cmn} : ça passe de justesse, vérifie la longueur du modèle exact.`]);
@@ -1084,7 +1084,7 @@ async function copyText(t,okMsg){
 }
 document.getElementById("copy-cfg").addEventListener("click",()=>copyText(configText(),"Config copiée ✔"));
 function catalogue(){
-  return CATS.map(c=>c.label+" :\n"+c.items.map(i=>`- ${i.id} | ${i.n} | ${i.src==="none"?"0":cost(i,false).toFixed(2)} € livré${i.idf?` | ${i.price} € en main propre (Île-de-France${i.km?`, ≈ ${i.km} km`:""})`:""}${i.cote?` | cote ${i.cote} €`:""}${i.seller?` | vendeur ${i.seller}`:""}${i.age?` | en ligne depuis ${i.age}`:""}${i.idx?` | ≈ ${ps5pct(i)} % d'une PS5 (${RESN[VIEW.res]}, ${settingsLabel()}), ${i.vram} Go, ${i.w} W`:""}${i.cpuF?` | facteur CPU ${i.cpuF}, ${i.watt} W, ventirad ${i.cooler===true?"inclus":i.cooler===false?"non":"?"}`:""}${i.watt&&!i.cpuF?` | ${i.watt} W`:""}${i.gb?` | ${i.gb} Go, ${i.sticks||"?"} barrette(s), format ${i.dimm==="ok"?"PC fixe confirmé":"NON vérifié"}`:""}${i.slots?` | ${i.slots} emplacements RAM`:""}${i.risk?` | RISQUE : ${i.risk}`:""}${i.ask?` | ${i.ask}`:""} | ${i.where||""}`).join("\n")).join("\n\n");
+  return CATS.map(c=>c.label+" :\n"+c.items.map(i=>`- ${i.id} | ${i.n} | ${i.src==="none"?"0":cost(i,false).toFixed(2)} € livré${i.idf?` | ${i.price} € en main propre (Île-de-France${i.km?`, ≈ ${i.km} km`:""})`:""}${i.cote?` | cote ${i.cote} €`:""}${i.seller&&i.seller!=="?"?` | vendeur ${i.seller}`:""}${i.age&&i.age!=="?"?` | en ligne depuis ${i.age}`:""}${i.idx?` | ≈ ${ps5pct(i)} % d'une PS5 (${RESN[VIEW.res]}, ${settingsLabel()}), ${i.vram} Go, ${i.w} W`:""}${i.cpuF?` | facteur CPU ${i.cpuF}, ${i.watt} W, ventirad ${i.cooler===true?"inclus":i.cooler===false?"non":"?"}`:""}${i.watt&&!i.cpuF?` | ${i.watt} W`:""}${i.gb?` | ${i.gb} Go, ${i.sticks||"?"} barrette(s), format ${i.dimm==="ok"?"PC fixe confirmé":"NON vérifié"}`:""}${i.slots?` | ${i.slots} emplacements RAM`:""}${i.risk?` | RISQUE : ${i.risk}`:""}${i.ask?` | ${i.ask}`:""} | ${i.where||""}`).join("\n")).join("\n\n");
 }
 
 let lastView="";
