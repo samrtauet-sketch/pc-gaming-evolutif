@@ -107,7 +107,7 @@ def main():
             pres = isinstance(km, NUM) and km <= PRES_KM
             if i.get("src") == "lbc" and not pres and i.get("livr") != 1:
                 if (c.get("key"), i.get("id")) in utilisees:
-                    i = dict(i, risk=i.get("risk") or "livraison non confirmée et loin de Vincennes : demande l'envoi au vendeur")
+                    i = dict(i, risk=i.get("risk") or (f"à {km} km de Vincennes : main propre si tu peux t'y déplacer, sinon demande l'envoi" if i.get("idf") and isinstance(km, NUM) else "livraison non confirmée et loin de Vincennes : demande l'envoi au vendeur"))
                 else:
                     retirees.append(i.get("id"))
                     continue

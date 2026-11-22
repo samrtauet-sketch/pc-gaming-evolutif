@@ -341,7 +341,7 @@ details.why p{margin-top:8px}
         <label class="ctl">PS Plus <select id="c-psp"><option value="0">aucun</option><option value="71.99" selected>Essential, 71,99 €/an</option><option value="125.99">Extra, 125,99 €/an</option><option value="151.99">Premium, 151,99 €/an</option></select></label>
         <label class="ctl">Jeux achetés par an <select id="c-jeux"><option value="0" selected>0</option><option value="2">2</option><option value="4">4</option><option value="6">6</option><option value="10">10</option></select></label></div>
         <div class="calc-out" id="t-amort"></div>
-        <span class="small muted">Prix Sony officiels de novembre 2026. PS Plus (obligatoire pour jouer en ligne sur PS5) : tarif 12 mois hors promo. Sur PC, le jeu en ligne est gratuit. Jeux : environ 15 € de moins par jeu sur PC (soldes Steam, clés), estimation. Écran et périphériques non comptés, ni côté PC ni côté PS5.</span>
+        <span class="small muted">Prix Sony officiels de novembre 2026. PS Plus (obligatoire pour jouer en ligne aux jeux payants ; Fortnite, Warzone et les autres jeux gratuits n'en ont pas besoin sur PS5) : tarif 12 mois hors promo. Sur PC, le jeu en ligne est gratuit. Jeux : environ 15 € de moins par jeu sur PC (soldes Steam, clés), estimation. Écran et périphériques non comptés, ni côté PC ni côté PS5.</span>
         <div class="calc-out" id="t-calc"></div>
       </div>
       <div class="games" id="t-games"></div>
@@ -464,7 +464,7 @@ details.why p{margin-top:8px}
     <div class="card"><h3>Neuf ou occasion ?</h3><ul>
       <li><strong>Toujours neuf</strong> : alimentation (une mauvaise peut griller tout le PC), carte mère (socket ou connecteurs abîmés, BIOS trop ancien pour les Ryzen 5000), SSD (usure invisible sur une pièce d'occasion).</li>
       <li><strong>Neuf car presque gratuit</strong> : pâte thermique, ventilateurs, ventirad, clé USB, câbles, Wi-Fi, clavier/souris : l'occasion ferait gagner 1 ou 2 €.</li>
-      <li><strong>Occasion</strong> : carte graphique et RAM (16 Go à 153 € neufs contre 70 à 80 € d'occasion vérifiée). <strong>Processeur</strong> : le neuf (garanti 3 ans, ventirad fourni) ne coûte souvent que 20 à 40 € de plus, c'est un bon choix. En occasion, vérifie sur photo qu'aucune broche du processeur n'est tordue.</li>
+      <li><strong>Occasion</strong> : carte graphique et RAM (16 Go à 153 € neufs contre 70 à 90 € d'occasion vérifiée). <strong>Processeur</strong> : le neuf (garanti 3 ans, ventirad fourni) ne coûte souvent que 20 à 40 € de plus, c'est un bon choix. En occasion, vérifie sur photo qu'aucune broche du processeur n'est tordue.</li>
       <li><strong>AliExpress</strong> : rien de retenu. Aucune offre récente vérifiable pour les CPU, et risque de fausses capacités sur RAM/SSD.</li></ul></div>
     <div class="card"><h3>RAM de PC fixe ou de portable ?</h3><ul>
       <li><strong>PC fixe (DIMM)</strong> : barrette d'environ 13 cm, 288 broches. Étiquette « PC4-…-U » ou « UDIMM ». Les gammes gaming à dissipateur (Vengeance LPX / RGB, Trident Z, Ripjaws V, Fury Beast) sont toutes pour PC fixe.</li>
@@ -693,7 +693,7 @@ function notes(sel){
   if(estN) out.push(["warn",`${estN} prix avec frais de port estimés : vérifie le total sur le site marchand avant de commander.`]);
   if(cs.id==="e302"&&gpu.w>=230&&sel.fans==="nofan") out.push(["warn",`Carte de 230 W ou plus dans l'Elite 302 : ajoute 3 ventilateurs (${eur0(cost(ITEM.tlc,false))}) pour évacuer l'air chaud.`]);
   if(cs.id==="forge"&&sel.fans==="tlc") out.push(["warn","Le Forge 120A a déjà 6 ventilateurs : les 3 en plus sont inutiles."]);
-  if(gpu.risk) out.push(["bad",`${gpu.n} : ${gpu.risk}. Main propre avec test, ou paiement sécurisé sur le site.`]);
+  if(gpu.risk) out.push(["bad",`${gpu.n} : ${gpu.risk}.${gpu.idf?" Main propre avec test, ou paiement sécurisé sur le site.":" Paie uniquement avec le paiement sécurisé du site."}`]);
   if(ram.risk) out.push(["bad",`RAM : ${ram.risk}.`]);
   else if(ram.dimm==="ok") out.push(["good",`RAM de PC fixe confirmée : ${ram.why}.`]);
   if(ram.ask) out.push(["warn",ram.ask]);
@@ -714,7 +714,7 @@ const PRESETS=[
  {name:"Égal PS5",tag:"RTX 3060 Ti (Vinted, paiement protégé) + Ryzen 5 5500 neuf",sel:{cpu:"r5500n",ram:"r16v",gpu:"g3060tiv",psu:"a650",cool:"stock",fans:"nofan",mb:"b550mk",ssd:"s500n",case:"e302",wifi:"nowifi"}},
  {name:"Recommandé",tag:"Le meilleur prix par point avec une vraie marge sur la PS5, sans annonce risquée : RTX 3070 Vinted, Ryzen 5 5600 neuf",pick:1,sel:{cpu:"r5600n",ram:"r16v",gpu:"g3070z",psu:"a650",cool:"stock",fans:"nofan",mb:"b550mk",ssd:"s500n",case:"e302",wifi:"nowifi"}},
  {name:"Recommandé 32 Go",tag:"Le même avec 32 Go (près de Vincennes) et 1 To",sel:{cpu:"r5600n",ram:"r32rgb",gpu:"g3070z",psu:"a650",cool:"stock",fans:"nofan",mb:"b550mk",ssd:"s1tn",case:"e302",wifi:"nowifi"}},
- {name:"Neuf au maximum",tag:"Processeur, carte graphique, SSD et alimentation neufs et garantis (prix de la RX 7600 à revérifier)",sel:{cpu:"r5500n",ram:"r16lpxw",gpu:"g7600n",psu:"cx550",cool:"stock",fans:"nofan",mb:"b550mk",ssd:"s500n",case:"e302",wifi:"nowifi"}},
+ {name:"Neuf au maximum",tag:"Processeur, carte graphique, SSD et alimentation neufs et garantis (attention : le marchand affichait 532 € pour la RX 7600 le 21/11, total probablement sous-estimé)",sel:{cpu:"r5500n",ram:"r16lpxw",gpu:"g7600n",psu:"cx550",cool:"stock",fans:"nofan",mb:"b550mk",ssd:"s500n",case:"e302",wifi:"nowifi"}},
  {name:"RX 6700 XT Issy",tag:"12 Go de mémoire vidéo, main propre à 13 km de Vincennes",sel:{cpu:"r5600n",ram:"r16v",gpu:"g6700xti",psu:"a650",cool:"stock",fans:"tlc",mb:"b550mk",ssd:"s500n",case:"e302",wifi:"nowifi"}},
  {name:"RX 6750 XT 12 Go",tag:"Plus de mémoire vidéo (12 Go) pour les jeux récents, avec Ryzen 7 5700X, 32 Go et 1 To",sel:{cpu:"r5700xv",ram:"r32rgb",gpu:"g6750xt",psu:"a650",cool:"ax120",fans:"tlc",mb:"b550mk",ssd:"s1tn",case:"e302",wifi:"nowifi"}},
  {name:"RX 6800 XT",tag:"1440p ultra, mais la carte est à Vichy : demande l'envoi au vendeur",sel:{cpu:"r5600xv",ram:"r32rgb",gpu:"g6800xt",psu:"cx750",cool:"ax120",fans:"tlc",mb:"b550mk",ssd:"s1tn",case:"e302",wifi:"nowifi"}},
@@ -808,6 +808,7 @@ const SPECS=Object.assign(SPECS_X,{
  mars:["Clavier membrane AZERTY rétroéclairé","Souris filaire RGB à DPI réglable","Tapis de souris inclus"]
 });
 /* Pièces du montage par défaut, ajoutées à chaque config */
+/* pièces citées dans les conseils (protégées par construire.py) : cool:"ax120" paste:"tf7" fans:"tlc" mb:"b550mk" */
 const CORE=["cpu","mb","ram","gpu","ssd","psu","case","cool","fans","wifi"];
 const EXTRA={paste:"inc",usb:"usbk",win:"nowin",strip:"nostrip",tools:"notools",screen:"noscr",dp:"nodp",kb:"nokb"};
 PRESETS.forEach(p=>{
@@ -1359,7 +1360,7 @@ const AI=(()=>{
     return found;
   }
   function amountIn(q){
-    q=q.replace(/(\d)[\s\u00a0\u202f.](?=\d{3}\b)/g,"$1");
+    q=q.replace(/(^|[^\w])(\d{1,3})[\s\u00a0\u202f.](?=\d{3}\b)/g,"$1$2");
     const m=q.match(/(\d{2,4})\s*(?:€|e\b|eur|euros?)/)||q.match(/\+\s*(\d{2,4})/)||q.match(/(?:^|[^a-zà-ÿ])(?:pour|de|à|a|sous|max|budget)\s+(\d{2,4})(?!\d)(?!\s*(?:%|go|hz|p\b|fps|mm|w\b|xt|ti|super))/);
     const v=m?+m[1]:0;
     return v&&/^(2060|2070|3060|3070|3080|6600|6650|6700|6750|6800|7600|7700|5500|5600|5700|5800|3600)$/.test(String(v))&&!/(€|eur|\+)/.test(m[0])?0:v;
@@ -1398,7 +1399,7 @@ const AI=(()=>{
     // 4. risques / arnaques
     if(/risque|arnaque|suspect|fiable|confiance|escroc/.test(q)&&safe&&!budget&&!/ameli|upgrade|ps5/.test(q)){
       const mine=Object.values(sel).map(id=>ITEM[id]).filter(i=>i&&i.src!=="none"&&riskyItem(i));
-      const all=CATS.flatMap(c=>c.items).filter(i=>i.src==="lbc"&&riskyItem(i));
+      const all=CATS.flatMap(c=>c.items).filter(i=>i.src!=="none"&&riskyItem(i));
       const why=riskWhy;
       return {text:(mine.length?"Dans ta config :\n"+mine.map(i=>`⚠ ${i.n} : ${why(i)}`).join("\n"):"Ta config ne contient aucune annonce à risque.")+
         "\n\nToutes les annonces à risque du site :\n"+all.map(i=>`• ${i.n} (${i.where}) : ${why(i)}`).join("\n")+
@@ -1414,7 +1415,7 @@ const AI=(()=>{
       const opts=all.filter(x=>x.t<=t0+ +extra).sort((a,b)=>b.perf-a.perf||a.t-b.t);
       if(!opts.length){
         const nxt=all.sort((a,b)=>a.t-b.t)[0];
-        return {text:`Pour ${extra} € de plus, rien ne fait gagner au moins 3 % : ta config est déjà la plus puissante possible à ce prix${VIEW.res?" en 1440p (c'est la carte graphique qui limite)":""}.`+(nxt?`\nProchaine vraie amélioration : ${["cpu","gpu","ram"].filter(k=>nxt.sel[k]!==base.sel[k]).map(k=>ITEM[nxt.sel[k]].n).join(" + ")} pour ${eur(nxt.t-t0)} de plus (${p0} % → ${nxt.perf} % d'une PS5).`:""),sel:nxt?nxt.sel:null};
+        return {text:`Pour ${extra} € de plus, rien ne fait gagner au moins 3 % : ta config est déjà la plus puissante possible à ce prix${(()=>{const g=perf(sel).games,n=g.filter(x=>x.lim==="processeur").length;return ` en ${RESN[VIEW.res]} (c'est ${n>g.length/2?"le processeur":"la carte graphique"} qui limite)`;})()}.`+(nxt?`\nProchaine vraie amélioration : ${["cpu","gpu","ram"].filter(k=>nxt.sel[k]!==base.sel[k]).map(k=>ITEM[nxt.sel[k]].n).join(" + ")} pour ${eur(nxt.t-t0)} de plus (${p0} % → ${nxt.perf} % d'une PS5).`:""),sel:nxt?nxt.sel:null};
       }
       const x=opts[0];
       const diff=["cpu","gpu","ram","mb","psu"].filter(k=>x.sel[k]!==base.sel[k]).map(k=>`${ITEM[base.sel[k]].n} → ${ITEM[x.sel[k]].n}`);
@@ -1459,11 +1460,11 @@ const AI=(()=>{
     if(/prix|combien|total|cout|cher/.test(q)){
       return {text:`Ta config : ${eur(total(sel,false))} tout livré, ${eur(total(sel,true))} avec la main propre en Île-de-France.\nPuissance : ${perf(sel).avg} % d'une PS5.`};
     }
-    return {text:"Je suis l'assistant du site (pas une IA) : je calcule à partir des annonces de la page. Exemples de questions :\n• « meilleure config sous 600 € »\n• « la moins chère qui dépasse la PS5 »\n• « améliorer ma config pour 80 € »\n• « ma config est compatible ? »\n• « fps dans Cyberpunk »\n• « RX 6800 ou RTX 3070 ? »\n• « quelles annonces sont risquées ? »\n• « quelle RAM prendre ? »\nAjoute « main propre » pour compter le retrait en Île-de-FranceVincennes.",help:1};
+    return {text:"Je suis l'assistant du site (pas une IA) : je calcule à partir des annonces de la page. Exemples de questions :\n• « meilleure config sous 600 € »\n• « la moins chère qui dépasse la PS5 »\n• « améliorer ma config pour 80 € »\n• « ma config est compatible ? »\n• « fps dans Cyberpunk »\n• « RX 6800 ou RTX 3070 ? »\n• « quelles annonces sont risquées ? »\n• « quelle RAM prendre ? »\nAjoute « main propre » pour compter le retrait en Île-de-France.",help:1};
   }
   function analyse(){
     const deals=CATS.flatMap(c=>c.items).filter(i=>i.cote&&!riskyItem(i)&&i.dimm!=="?"&&i.price<i.cote).sort((a,b)=>a.price/a.cote-b.price/b.cote).slice(0,5);
-    const risky=CATS.flatMap(c=>c.items).filter(i=>i.src==="lbc"&&riskyItem(i));
+    const risky=CATS.flatMap(c=>c.items).filter(i=>i.src!=="none"&&riskyItem(i));
     const C=compat(sel).filter(x=>x[0]!=="ok");
     const best=candidates({safe:true}).filter(x=>x.t<=650).sort((a,b)=>b.perf-a.perf)[0];
     return "1. MEILLEURES AFFAIRES (prix sous la cote, annonce fiable)\n"+deals.map(i=>`• ${i.n} — ${i.price} € au lieu de ${i.cote} € (−${Math.round((1-i.price/i.cote)*100)} %) — ${i.where}`).join("\n")+

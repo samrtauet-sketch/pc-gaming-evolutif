@@ -46,7 +46,7 @@
   {"id": "g3060ti", "n": "MSI RTX 3060 Ti 8 Go", "src": "lbc", "price": 205, "port": 5.9, "where": "Corbas (69)", "age": "1 j", "seller": "?", "url": "https://www.leboncoin.fr/ad/accessoires_informatique/3311030402", "idx": 98, "vram": 8, "w": 200, "nv": 1, "cote": 250, "deal": 1},
   {"id": "g6700xt", "n": "RX 6700 XT 12 Go", "src": "lbc", "price": 260, "port": 5.9, "where": "Champagne-au-Mont-d'Or (69)", "age": "4 j", "seller": "?", "url": "https://www.leboncoin.fr/ad/accessoires_informatique/3308667659", "idx": 104, "vram": 12, "w": 230, "cote": 300},
   {"id": "g3070", "n": "Gigabyte RTX 3070 Gaming OC", "src": "lbc", "price": 290, "port": 5.9, "where": "Colombes (92)", "km": 17, "idf": 1, "age": "1 j", "seller": "5/5 (258 avis)", "url": "https://www.leboncoin.fr/ad/accessoires_informatique/3310932713", "idx": 109, "vram": 8, "w": 220, "nv": 1, "cote": 300},
-  {"id": "g6800", "n": "Sapphire Nitro+ RX 6800 16 Go", "src": "lbc", "price": 230, "port": 6.9, "where": "Ozoir-la-Ferrière (77)", "km": 22, "idf": 1, "age": "1 j", "seller": "3/5 (4 avis)", "url": "https://www.leboncoin.fr/ad/accessoires_informatique/3311445334", "idx": 133, "vram": 16, "w": 290, "cote": 390, "deal": 1, "risk": "41 % sous la cote : main propre avec test"},
+  {"id": "g6800", "n": "Sapphire Nitro+ RX 6800 16 Go", "src": "lbc", "price": 230, "port": 6.9, "where": "Ozoir-la-Ferrière (77)", "km": 22, "idf": 1, "age": "1 j", "seller": "3/5 (4 avis)", "url": "https://www.leboncoin.fr/ad/accessoires_informatique/3311445334", "idx": 133, "vram": 16, "w": 290, "cote": 390, "risk": "41 % sous la cote : main propre avec test"},
   {"id": "g6800xt", "n": "XFX RX 6800 XT 16 Go", "src": "lbc", "price": 400, "port": 6.9, "where": "Vichy (03)", "age": "7 j", "seller": "5/5 (12 avis)", "url": "https://www.leboncoin.fr/ad/accessoires_informatique/3306674536", "idx": 155, "vram": 16, "w": 300, "cote": 430},
   {"id": "g3080", "n": "Asus ROG Strix RTX 3080 10 Go", "src": "lbc", "price": 440, "port": 6.9, "where": "Corbeil-Essonnes (91)", "km": 33, "idf": 1, "age": "5 j", "seller": "5/5 (3 avis)", "url": "https://www.leboncoin.fr/ad/accessoires_informatique/3308065371", "idx": 160, "vram": 10, "w": 340, "nv": 1, "cote": 430},
   {"id": "g6600xtn", "n": "RX 6600 XT 8 Go", "src": "lbc", "price": 230, "port": 5.9, "where": "Nanterre (92)", "km": 17, "idf": 1, "age": "6 j", "seller": "4,5/5 (8 avis)", "url": "https://www.leboncoin.fr/ad/accessoires_informatique/3307525292", "idx": 90, "vram": 8, "w": 160, "x8": 1, "cote": 210},
@@ -80,7 +80,7 @@
   {"id": "ax120", "n": "Thermalright Assassin X120 Refined SE", "src": "new", "price": 18.99, "where": "RueDuCommerce, livré", "url": "https://www.awin1.com/pclick.php?p=46388195046&a=297939&m=6901&clickref=DF-REF"}
 ]},
 {"key": "fans", "label": "Ventilateurs en plus", "items": [
-  {"id": "nofan", "n": "Aucun", "src": "none", "price": 0, "where": "suffisant jusqu'à ~230 W de carte graphique"},
+  {"id": "nofan", "n": "Aucun", "src": "none", "price": 0, "where": "suffisant sous ~230 W de carte graphique"},
   {"id": "tlc", "n": "Thermalright TL-C12C ×3", "src": "new", "price": 14.95, "where": "Materiel.net, livré", "url": "https://www.materiel.net/produit/202605220033.html"}
 ]},
 {"key": "wifi", "label": "Wi-Fi", "items": [
