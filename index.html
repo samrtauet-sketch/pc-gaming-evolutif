@@ -488,7 +488,7 @@ details.why p{margin-top:8px}
 <button type="button" class="chat-fab" id="chat-fab" aria-expanded="false" aria-controls="chat">💬 Poser une question</button>
 <div class="chat" id="chat" role="dialog" aria-label="Chat avec l'assistant PC" hidden>
   <div class="chat-head"><strong>Assistant PC</strong><span class="small muted sp" id="chat-mode">connaît les offres et ta config</span><button type="button" id="chat-clear" title="Nouvelle conversation" aria-label="Nouvelle conversation">↺</button><button type="button" id="chat-x" aria-label="Fermer le chat">✕</button></div>
-  <div class="chat-log" id="chat-log" aria-live="polite"><div class="msg a">Bonjour ! Je suis l'assistant du site (des calculs automatiques, pas une IA) : je réponds instantanément en calculant avec toutes les annonces, les FPS et le vérificateur de compatibilité, sans compte ni Internet. Essaie « meilleure config sous 600 € » ou « RX 6800 ou RTX 3070 ? ».</div></div>
+  <div class="chat-log" id="chat-log" aria-live="polite"><div class="msg a">Bonjour ! Je suis l'assistant du site (des calculs automatiques, pas une IA) : je réponds instantanément en calculant avec toutes les annonces, les FPS et le vérificateur de compatibilité, sans compte ni Internet. Essaie « meilleure config sous 650 € » ou « RX 6800 ou RTX 3070 ? ».</div></div>
   <div class="chat-sugg">
     <button type="button" data-cq="Ma config est-elle compatible ? Y a-t-il un problème ?">Compatible ?</button>
     <button type="button" data-cq="Quelle est la config la moins chère qui dépasse une PS5 ?">Moins chère ≥ PS5</button>
@@ -686,7 +686,7 @@ function notes(sel){
   if(sel.cool==="ax120"&&cpu.cooler===true) out.push(["good",`${cpu.n} est vendu avec un ventirad : tu peux retirer le Thermalright et économiser ${eur0(cost(ITEM.ax120,false))} (garde-le si tu veux un PC plus silencieux).`]);
   if(/X3D/i.test(cpu.n)) out.push(["warn","5800X3D : jusqu'à 105 W en charge. Le Thermalright suffit tout juste, un ventirad double tour (~45 €) serait mieux. Vérifie que le BIOS de la carte mère est à jour."]);
   if((mb.pcie3||cpu.pcie3)&&gpu.x8) out.push(["warn",`${gpu.n} en PCIe 3.0 (${cpu.pcie3?"Ryzen 5 5500":"carte mère A520"}) : environ 4 % de perf en moins.`]);
-  if(sel.cool==="stock"&&cpu.src!=="new"&&sel.paste==="inc") out.push(["bad",`Ventirad d'occasion réutilisé : ajoute de la pâte thermique neuve (TF7, ${eur0(cost(ITEM.tf7,false))} livrée), l'ancienne est sèche.`]);
+  if(sel.cool==="stock"&&cpu.src!=="new"&&sel.paste==="inc") out.push(["warn",`Ventirad d'occasion réutilisé : ajoute de la pâte thermique neuve (TF7, ${eur0(cost(ITEM.tf7,false))} livrée), l'ancienne est sèche.`]);
   if(sel.win==="wingrey") out.push(["warn","Clé Windows à bas prix : zone grise, elle peut être révoquée. Windows non activé fonctionne aussi pour jouer."]);
   if(sel.usb==="nousb") out.push(["warn","Il te faut une clé USB de 8 Go ou plus pour installer Windows (outil gratuit Microsoft « Media Creation Tool »)."]);
   if(gpu.idx>=120&&["aoc24r","lg24","aoc24"].includes(sel.screen)) out.push(["warn","Avec cette carte, un écran 1440p serait mieux exploité qu'un 1080p."]);
@@ -1461,7 +1461,7 @@ const AI=(()=>{
     if(/prix|combien|total|cout|cher/.test(q)){
       return {text:`Ta config : ${eur(total(sel,false))} tout livré, ${eur(total(sel,true))} avec la main propre en Île-de-France.\nPuissance : ${perf(sel).avg} % d'une PS5.`};
     }
-    return {text:"Je suis l'assistant du site (pas une IA) : je calcule à partir des annonces de la page. Exemples de questions :\n• « meilleure config sous 600 € »\n• « la moins chère qui dépasse la PS5 »\n• « améliorer ma config pour 80 € »\n• « ma config est compatible ? »\n• « fps dans Cyberpunk »\n• « RX 6800 ou RTX 3070 ? »\n• « quelles annonces sont risquées ? »\n• « quelle RAM prendre ? »\nAjoute « main propre » pour compter le retrait en Île-de-France.",help:1};
+    return {text:"Je suis l'assistant du site (pas une IA) : je calcule à partir des annonces de la page. Exemples de questions :\n• « meilleure config sous 650 € »\n• « la moins chère qui dépasse la PS5 »\n• « améliorer ma config pour 80 € »\n• « ma config est compatible ? »\n• « fps dans Cyberpunk »\n• « RX 6800 ou RTX 3070 ? »\n• « quelles annonces sont risquées ? »\n• « quelle RAM prendre ? »\nAjoute « main propre » pour compter le retrait en Île-de-France.",help:1};
   }
   function analyse(){
     const deals=CATS.flatMap(c=>c.items).filter(i=>i.cote&&!riskyItem(i)&&i.dimm!=="?"&&i.price<i.cote).sort((a,b)=>a.price/a.cote-b.price/b.cote).slice(0,5);
