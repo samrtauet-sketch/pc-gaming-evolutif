@@ -315,7 +315,7 @@ details.why p{margin-top:8px}
         <span class="copied" id="copy-ok" aria-live="polite"></span>
       </div>
       <textarea class="copyfall" id="copy-fall" hidden aria-label="Texte à copier"></textarea>
-      <label class="toggle" for="pickup"><input type="checkbox" id="pickup"> <span>Main propre près de Vincennes quand c'est possible : ni frais ni livraison, avec un test sur place.</span></label>
+      <label class="toggle" for="pickup"><input type="checkbox" id="pickup"> <span>Main propre en Île-de-France quand c'est possible : ni frais ni livraison, avec un test sur place (vérifie que tu peux t'y déplacer).</span></label>
       <div class="viewctl">
         <span class="eyebrow">Réglages du calcul des FPS</span>
         <div class="seg" role="group" aria-label="Résolution"><button type="button" data-res="0">1080p</button><button type="button" data-res="1">1440p</button><button type="button" data-res="2">4K</button></div>
@@ -367,9 +367,9 @@ details.why p{margin-top:8px}
 <!-- ANALYSE IA -->
 <section data-tab="config" role="tabpanel" aria-labelledby="h-ai" class="ai" id="ai-sec">
   <div class="sec-head">
-    <span class="eyebrow">Assistant IA</span>
+    <span class="eyebrow">Assistant</span>
     <h2 id="h-ai">L'assistant du site</h2>
-    <p class="small muted">L'assistant du site fonctionne partout, sans compte. Ce n'est pas une IA : il repère les mots-clés de ta question et calcule la réponse avec toutes les offres, le calcul des FPS et le vérificateur de compatibilité (meilleure config pour un budget, amélioration, comparaison de cartes, FPS par jeu, annonces risquées). Pose tes questions dans le chat en bas à droite. Sur claude.ai, un bouton « Approfondir avec Claude » ajoute une réponse rédigée par Claude, avec ton compte.</p>
+    <p class="small muted">L'assistant du site fonctionne partout, sans compte. Ce n'est pas une IA : il repère les mots-clés de ta question et calcule la réponse avec toutes les offres, le calcul des FPS et le vérificateur de compatibilité (meilleure config pour un budget, amélioration, comparaison de cartes, FPS par jeu, annonces risquées). Pose tes questions dans le chat en bas à droite. Quand le serveur de la maison est allumé, c'est Claude qui répond ; sur claude.ai, un bouton « Approfondir avec Claude » ajoute une réponse rédigée par Claude, avec ton compte.</p>
   </div>
   <div class="row">
     <button type="button" id="ai-go">Analyser les offres</button>
@@ -441,7 +441,7 @@ details.why p{margin-top:8px}
   </div>
   <div class="grid3">
     <div class="card"><h3>Occasion : maintenant</h3><p class="small">En 30 jours, les cartes graphiques d'occasion ont pris de 5 à 12 % (RTX 3080 +12 %, RTX 3060 Ti +8 %, RX 6700 XT +7 %, RX 6600 +6 %). La DDR4 32 Go a pris 11 % en 7 jours à cause de la pénurie de mémoire. Attendre coûte plus cher.</p></div>
-    <div class="card"><h3>Neuf : Black Friday le 27/11</h3><p class="small">Le prix médian des alimentations de 750 W a baissé de 6 % en 30 jours. Alimentation, boîtier, ventirad et carte mère neuve peuvent attendre le 27/11 ou le Cyber Monday du 30/11.</p></div>
+    <div class="card"><h3>Neuf : Black Friday le 27/11/2026</h3><p class="small">Le prix médian des alimentations de 750 W a baissé de 6 % en 30 jours. Alimentation, boîtier, ventirad et carte mère neuve peuvent attendre le 27/11 ou le Cyber Monday du 30/11.</p></div>
     <div class="card"><h3>Les vrais placements</h3><p class="small">Une pièce achetée au prix du marché (la « cote », affichée sur chaque annonce) se revend presque au même prix. Les annonces très en dessous de la cote ne sont pas des placements : ce sont souvent des arnaques ou des pièces abîmées, signalées « à vérifier » sur le site.</p></div>
   </div>
 </section>
@@ -462,9 +462,9 @@ details.why p{margin-top:8px}
       <li>Carte graphique : 10 minutes de jeu ou d'OCCT, en vérifiant la température du GPU (pas le « point chaud », qui monte plus haut) : moins de 85 °C et l'absence d'artefacts.</li>
       <li>Paiement sur place après le test, avec le paiement sécurisé si le vendeur l'accepte.</li></ul></div>
     <div class="card"><h3>Neuf ou occasion ?</h3><ul>
-      <li><strong>Toujours neuf</strong> : alimentation (une mauvaise peut griller tout le PC), carte mère (broches tordues, BIOS), SSD (usure invisible sur une pièce d'occasion).</li>
+      <li><strong>Toujours neuf</strong> : alimentation (une mauvaise peut griller tout le PC), carte mère (socket ou connecteurs abîmés, BIOS trop ancien pour les Ryzen 5000), SSD (usure invisible sur une pièce d'occasion).</li>
       <li><strong>Neuf car presque gratuit</strong> : pâte thermique, ventilateurs, ventirad, clé USB, câbles, Wi-Fi, clavier/souris : l'occasion ferait gagner 1 ou 2 €.</li>
-      <li><strong>Occasion</strong> : carte graphique et RAM (16 Go à 153 € neufs contre 70 à 80 € d'occasion vérifiée). <strong>Processeur</strong> : le neuf (garanti 3 ans, ventirad fourni) ne coûte souvent que 20 à 40 € de plus, c'est un bon choix.</li>
+      <li><strong>Occasion</strong> : carte graphique et RAM (16 Go à 153 € neufs contre 70 à 80 € d'occasion vérifiée). <strong>Processeur</strong> : le neuf (garanti 3 ans, ventirad fourni) ne coûte souvent que 20 à 40 € de plus, c'est un bon choix. En occasion, vérifie sur photo qu'aucune broche du processeur n'est tordue.</li>
       <li><strong>AliExpress</strong> : rien de retenu. Aucune offre récente vérifiable pour les CPU, et risque de fausses capacités sur RAM/SSD.</li></ul></div>
     <div class="card"><h3>RAM de PC fixe ou de portable ?</h3><ul>
       <li><strong>PC fixe (DIMM)</strong> : barrette d'environ 13 cm, 288 broches. Étiquette « PC4-…-U » ou « UDIMM ». Les gammes gaming à dissipateur (Vengeance LPX / RGB, Trident Z, Ripjaws V, Fury Beast) sont toutes pour PC fixe.</li>
@@ -473,14 +473,14 @@ details.why p{margin-top:8px}
       <li>Le filtre « RAM de PC fixe vérifiée » ne garde que les annonces dont le titre ou la gamme le prouve.</li></ul></div>
     <div class="card bad"><h3>Les signaux d'alerte</h3><ul>
       <li>Prix plus de 40 % sous la cote : le site les marque « à vérifier » et les range en dernier. Uniquement avec test en main propre ou paiement sécurisé.</li>
-      <li>Vendeur sans avis, ou noté 3/5 ou moins.</li>
+      <li>Vendeur sans avis, ou noté moins de 4/5.</li>
       <li>Même annonce publiée plusieurs fois (ex. 5 kits de 32 Go identiques chez le même vendeur).</li>
       <li>Le vendeur veut sortir de la plateforme ou presse pour payer vite.</li></ul></div>
   </div>
 </section>
 
 <footer>
-  <p><strong>Méthode.</strong> Les annonces Leboncoin viennent de racingtech.fr (relevés automatiques, date en haut de page). Leboncoin bloque la lecture automatique : la possibilité d'envoi n'a pas pu être vérifiée annonce par annonce. Prix livré sur Leboncoin = prix + 0,70 € + 5 % de frais + Mondial Relay (3,90 € pour une petite pièce, 5,90 € à 6,90 € pour une carte graphique). Vinted : prix + protection acheteur (0,70 € + 5 %) + environ 4 à 6 € de port. Pièces neuves : prix + livraison (estimée quand le marchand ne l'affiche pas), garantie légale de 2 ans minimum. Les pièces neuves viennent de comparateur-gamer.fr et des sites marchands. Les distances depuis Vincennes sont approximatives. RAM : format PC fixe déduit du titre de l'annonce (« PC fixe », « PC bureau », « UDIMM ») ou d'une gamme vendue uniquement pour PC fixe ; relevé racingtech.fr du 18/11/2026. Cartes mères 4 slots : <a href="https://lebonsetup.fr/meilleure-carte-mere-gaming-2026/">lebonsetup.fr</a> (prix Amazon du 02/11/2026), <a href="https://www.gigabyte.com/fr/Motherboard/B550M-K-rev-12/sp">fiche Gigabyte B550M K</a>. Les FPS sont calculés jeu par jeu : le minimum entre les FPS que permet la carte graphique (FPS mesurés d'une RX 6700 XT dans ce jeu, puissance relative de chaque carte en 1080p et en 1440p, bonus AMD ou NVIDIA du jeu, débordement de mémoire vidéo, PCIe 3.0 x8, upscaling) et ceux que permet le processeur (plafond mesuré d'un Ryzen 5600X dans ce jeu, avantage du cache 3D du 5800X3D, RAM 32 Go). La PS5 passe par le même calcul (GPU ≈ RX 6700, CPU Zen 2 à 3,5 GHz) pour obtenir le « % PS5 ». Ses FPS réels sont ceux de son mode Performance. Ordres de grandeur issus des tests publiés (TechPowerUp, Hardware Unboxed, Digital Foundry), précision ± 10-15 % : ce ne sont pas des mesures sur ta machine.</p>
+  <p><strong>Méthode.</strong> Les annonces Leboncoin viennent de racingtech.fr (relevés automatiques, date en haut de page). Leboncoin bloque la lecture automatique : la possibilité d'envoi n'a pas pu être vérifiée annonce par annonce. Prix livré sur Leboncoin = prix + 0,70 € + 5 % de frais + Mondial Relay (3,90 € pour une petite pièce, 5,90 € à 6,90 € pour une carte graphique). Vinted : prix + protection acheteur (0,70 € + 5 %) + environ 4 à 6 € de port. Pièces neuves : prix + livraison (estimée quand le marchand ne l'affiche pas), garantie légale de 2 ans minimum. Les pièces neuves viennent de comparateur-gamer.fr et des sites marchands. Les distances depuis Vincennes sont approximatives. RAM : format PC fixe déduit du titre de l'annonce (« PC fixe », « PC bureau », « UDIMM ») ou d'une gamme vendue uniquement pour PC fixe ; relevés racingtech.fr (date en haut de page). Cartes mères 4 slots : <a href="https://lebonsetup.fr/meilleure-carte-mere-gaming-2026/">lebonsetup.fr</a> (prix Amazon du 02/11/2026), <a href="https://www.gigabyte.com/fr/Motherboard/B550M-K-rev-12/sp">fiche Gigabyte B550M K</a>. Les FPS sont calculés jeu par jeu : le minimum entre les FPS que permet la carte graphique (FPS mesurés d'une RX 6700 XT dans ce jeu, puissance relative de chaque carte en 1080p et en 1440p, bonus AMD ou NVIDIA du jeu, débordement de mémoire vidéo, PCIe 3.0 x8, upscaling) et ceux que permet le processeur (plafond mesuré d'un Ryzen 5600X dans ce jeu, avantage du cache 3D du 5800X3D, RAM 32 Go). La PS5 passe par le même calcul (GPU ≈ RX 6700, CPU Zen 2 à 3,5 GHz) pour obtenir le « % PS5 ». Ses FPS réels sont ceux de son mode Performance. Ordres de grandeur issus des tests publiés (TechPowerUp, Hardware Unboxed, Digital Foundry), précision ± 10-15 % : ce ne sont pas des mesures sur ta machine.</p>
   <p><strong>Sources.</strong> <a href="https://www.racingtech.fr/fr/cote">racingtech.fr</a> · <a href="https://www.comparateur-gamer.fr">comparateur-gamer.fr</a> · <a href="https://zeus-pc.com/benchmark/cpu-benchmark/amd/benchmark-amd-ryzen-5-5600x/">Zeus-PC (ventes réelles 5600X)</a> · <a href="https://zeus-pc.com/benchmark/cpu-benchmark/amd/benchmark-amd-ryzen-7-5800x3d/">Zeus-PC (5800X3D)</a> · <a href="https://www.ldlc.com/fr-lu/fiche/PB00728506.html">LDLC (Elite 302)</a> · <a href="https://www.clubic.com/carte-graphique/test-25028-test-sapphire-nitro-amd-radeon-rx-6800-un-outsider-avec-lequel-compter.html">Clubic (Nitro+ RX 6800)</a> · <a href="https://friptadium.com/blogs/actualites/livraison-leboncoin-modes-tarifs">frais Leboncoin 2026</a> · <a href="https://www.leboncoin.fr/ck/accessoires_informatique/6700-xt/p-2">cartes HS</a></p>
 </footer>
 </div>
@@ -602,7 +602,7 @@ function perf(sel){
   const games=GAMES.map(g=>{const pc=gameFps(g,o),pv=gameFps(g,ps);return {...pc,ps5:g.ps5,ps5m:g.ps5m,ps5eq:pv.fps,pct:Math.round(pc.fps/pv.fps*100)};});
   const per=games.map(x=>x.pct);
   const avg=Math.round(Math.exp(per.reduce((a,b)=>a+Math.log(b),0)/per.length));
-  return {per,avg,games,esport:Math.round(380*(CPUF[cpu.id]||1)*(/X3D/i.test(cpu.n)?1.15/1.22:1))};
+  return {per,avg,games,esport:Math.round(380*(CPUF[cpu.id]||cpu.cpuF/1.22||1)*(/X3D/i.test(cpu.n)?1.15/1.22:1))};
 }
 /* Équilibre de la config : qui bride qui, alimentation, mémoire vidéo, RAM, écran */
 function balance(S,p){
@@ -614,7 +614,7 @@ function balance(S,p){
     const lost=Math.round(cpuG.reduce((a,x)=>a+(1-x.cf/x.gf),0)/cpuG.length*100);
     let best=null; CATS.find(c=>c.key==="cpu").items.forEach(i=>{ if(i.id===S.cpu||isRisky(i)) return; const T={...S,cpu:i.id}; if(compat(T).some(x=>x[0]==="bad")) return;
       const g=perf(T).avg-p.avg, ex=cost(i,false)-cost(cpu,false); if(g>=3&&(!best||g/Math.max(ex,1)>best.g/Math.max(best.ex,1))) best={i,g,ex}; });
-    L.push(["warn",`${cpu.n} limite les images/s dans ${cpuG.map(x=>GAMES[p.games.indexOf(x)].n).join(", ")} : la carte graphique perd environ ${lost} % de sa puissance dans ces jeux.${best?` Meilleur remède : ${best.i.n} (+${best.g} % pour ${best.ex>=0?"+":"−"}${eur0(Math.abs(best.ex))}).`:""} Monter en résolution ou activer le ray tracing utilise mieux la carte, sans perte d'images/s.`]);
+    L.push(["warn",`${cpu.n} limite les images/s dans ${cpuG.map(x=>GAMES[p.games.indexOf(x)].n).join(", ")} : la carte graphique perd environ ${lost} % de sa puissance dans ces jeux.${best?` Meilleur remède : ${best.i.n} (+${best.g} % pour ${best.ex>=0?"+":"−"}${eur0(Math.abs(best.ex))}).`:""} Monter en résolution ou activer le ray tracing utilise mieux la carte, pour une perte d'images/s faible.`]);
   } else if(cpuG.length>=4) L.push(["good",`Processeur et carte graphique bien assortis : le processeur limite un peu dans ${cpuG.length} jeux, mais la carte est utilisée à ${use} %.`]);
   else if(cpuG.length) L.push(["good",`Le processeur limite seulement ${cpuG.map(x=>GAMES[p.games.indexOf(x)].n).join(", ")} : c'est normal pour ces jeux très exigeants côté processeur.`]);
   if(cpuG.length===0&&cost(cpu,false)>cost(gpu,false)*0.8&&gpu.idx<110){ T.warn=T.warn||"Processeur surdimensionné pour cette carte graphique";
@@ -748,7 +748,7 @@ const SPECS=Object.assign(SPECS_X,{
  a520:["Chipset AMD A520, format micro-ATX","2 emplacements DDR4 (jusqu'à 64 Go)","1 port M.2 NVMe (PCIe 3.0), 4 SATA","Port carte graphique PCIe 3.0 x16","Sorties HDMI / DVI / VGA (inutiles ici : l'écran se branche sur la carte graphique), Ethernet 1 Gb, pas de Wi-Fi","Compatible Ryzen 3000 et 5000 (BIOS récent)"],
  soyo:["Chipset AMD B550, micro-ATX","PCIe 4.0 pour la carte graphique","Éclairage ARGB","Marque d'entrée de gamme : nombre de slots RAM / M.2 à vérifier sur l'annonce"],
  ds3h:["Chipset AMD B550, micro-ATX","4 emplacements DDR4 (jusqu'à 128 Go)","2 ports M.2 (1 en PCIe 4.0, 1 en PCIe 3.0), 4 SATA","Port carte graphique PCIe 4.0 x16","HDMI / DVI / DisplayPort, Ethernet 1 Gb, pas de Wi-Fi","Étage d'alimentation suffisant pour un 5800X3D (BIOS à jour)"],
- r16c:["16 Go DDR4 3200 MHz","Format à confirmer : 2×8 Go (double canal (plus rapide), mieux) ou 1×16 Go","Doit être DIMM 288 broches (PC fixe)"],
+ r16c:["16 Go DDR4 3200 MHz","Format à confirmer : 2×8 Go (double canal : plus rapide, c'est mieux) ou 1×16 Go","Doit être DIMM 288 broches (PC fixe)"],
  r16m:["16 Go (2×8 Go) DDR4 3200 MHz, double canal (plus rapide)","DIMM 288 broches à confirmer","1,2 à 1,35 V"],
  r16n:["16 Go (2×8 Go) DDR4 3200 MHz CL16","DIMM 288 broches, 1,35 V, profil XMP","Dissipateur bas (compatible gros ventirads), garantie à vie"],
  r32h:["32 Go (2×16 Go) DDR4 2666 MHz","Barrettes Samsung nues : souvent SO-DIMM (portable) ou ECC (serveur)","2666 MHz : un peu plus lent que 3200 (≈ −3 % en jeu)"],
@@ -779,7 +779,7 @@ const SPECS=Object.assign(SPECS_X,{
  s1tl:["1 To, M.2 2280 NVMe PCIe 3.0 x4","≈ 3 300 Mo/s en lecture","Garantie si facture et emballage scellé"],
  cx550:["550 W, certification 80 PLUS Bronze","Non modulaire, format ATX","2 connecteurs PCIe 6+2 broches","Ventilateur 120 mm, garantie 5 ans","Suffisante jusqu'à ≈ 200 W de carte graphique"],
  a650:["650 W, 80 PLUS Bronze","Non modulaire, format ATX","2 connecteurs PCIe 6+2 broches","Protections OCP/OVP/SCP, garantie 5 ans","OK jusqu'à une RX 6750 XT ou une RTX 3070"],
- cx750:["750 W, Cybenetics Gold, norme ATX 3.1","Non modulaire","3 connecteurs PCIe 6+2 broches + 1 câble 12V-2x6","Garantie longue (≥ 5 ans)","OK pour RX 6800 XT / RTX 3080"],
+ cx750:["750 W, Cybenetics Gold, norme ATX 3.1","Non modulaire","3 connecteurs PCIe 6+2 broches + 1 câble 12V-2x6","Garantie longue (≥ 5 ans)","OK pour une RX 6800 XT ; pour une RTX 3080 Strix, Asus conseille 850 W"],
  e302:["Moyen tour micro-ATX","3 ventilateurs 120 mm fournis","Carte graphique : 365 mm max sans ventilateurs avant, ≈ 340 mm avec","Ventirad : 163,5 mm max · alimentation : 160 mm max","Façade grillagée, panneau verre trempé"],
  forge:["Moyen tour ATX (accepte aussi le micro-ATX)","6 ventilateurs ARGB 120 mm fournis","Carte graphique : 330 mm max · ventirad : 160 mm max · alimentation : 200 mm max","Façade grillagée, verre trempé"],
  stock:["Utilise le ventirad livré avec le processeur","Pense à la pâte thermique neuve s'il est d'occasion"],
@@ -925,7 +925,7 @@ function renderRank(){
   /* Gain réel pour la config actuelle : on remplace la pièce et on recalcule tout */
   const base=perf(sel).avg, tb=total(sel,false), G={};
   its.forEach(i=>{ const S={...sel,[c.key]:i.id}; const pa=perf(S).avg, ex=total(S,false)-tb;
-    const bad=compat(S).some(x=>x[0]==="bad"); G[i.id]={g:pa-base,ex,bad,score:i.id===sel[c.key]?-1e9:bad?-2e6+(pa-base):pa-base<=0?-1e6+(pa-base)-ex/1e4:ex<=0?1e6+(pa-base):(pa-base)/ex}; });
+    const bad=compat(S).some(x=>x[0]==="bad"); G[i.id]={g:pa-base,ex,bad,score:i.id===sel[c.key]?-1e9:bad?-2e6+(pa-base):pa-base<=0?(ex>=0?-1.5e6+(pa-base):-1e6-(base-pa)/(-ex)):ex<=0?1e6+(pa-base):(pa-base)/ex}; });
   its.sort(k==="pw"?(a,b)=>b.pw-a.pw:k==="prix"?(a,b)=>cost(a,false)-cost(b,false):k==="gain"?(a,b)=>G[b.id].score-G[a.id].score:(a,b)=>b.val-a.val);
   document.getElementById("r-count").textContent=`${its.length} pièce(s) sur ${c.items.filter(i=>i.pw!=null).length} dans « ${c.label} ».`;
   document.getElementById("rtable").innerHTML=`<thead><tr><th>#</th><th>Modèle</th><th>Où</th><th class="r">Livré</th><th>Puissance</th><th class="r">Prix/puiss.</th><th class="r">Gain pour ma config</th><th></th></tr></thead><tbody>${its.map((i,n)=>{
@@ -956,7 +956,7 @@ function visible(i){
   if(F.max&&cost(i,false)>F.max) return false;
   if(F.dimm&&i.cat==="ram"&&i.dimm!=="ok") return false;
   if(F.slots&&i.cat==="mb"&&i.slots!==4) return false;
-  if(F.idf&&i.src==="lbc"&&!i.idf) return false;
+  if(F.idf&&(i.src==="lbc"||i.src==="vinted")&&!(i.km<=15)) return false;
   if(F.safe&&isRisky(i)) return false;
   return true;
 }
@@ -1084,7 +1084,7 @@ async function copyText(t,okMsg){
 }
 document.getElementById("copy-cfg").addEventListener("click",()=>copyText(configText(),"Config copiée ✔"));
 function catalogue(){
-  return CATS.map(c=>c.label+" :\n"+c.items.map(i=>`- ${i.id} | ${i.n} | ${i.src==="none"?"0":cost(i,false).toFixed(2)} € livré${i.idf?` | ${i.price} € en main propre près de Vincennes`:""}${i.cote?` | cote ${i.cote} €`:""}${i.seller?` | vendeur ${i.seller}`:""}${i.age?` | en ligne depuis ${i.age}`:""}${i.idx?` | ≈ ${ps5pct(i)} % d'une PS5 (${RESN[VIEW.res]}, ${settingsLabel()}), ${i.vram} Go, ${i.w} W`:""}${i.cpuF?` | facteur CPU ${i.cpuF}, ${i.watt} W, ventirad ${i.cooler===true?"inclus":i.cooler===false?"non":"?"}`:""}${i.watt&&!i.cpuF?` | ${i.watt} W`:""}${i.gb?` | ${i.gb} Go, ${i.sticks||"?"} barrette(s), format ${i.dimm==="ok"?"PC fixe confirmé":"NON vérifié"}`:""}${i.slots?` | ${i.slots} emplacements RAM`:""}${i.risk?` | RISQUE : ${i.risk}`:""}${i.ask?` | ${i.ask}`:""} | ${i.where||""}`).join("\n")).join("\n\n");
+  return CATS.map(c=>c.label+" :\n"+c.items.map(i=>`- ${i.id} | ${i.n} | ${i.src==="none"?"0":cost(i,false).toFixed(2)} € livré${i.idf?` | ${i.price} € en main propre (Île-de-France${i.km?`, ≈ ${i.km} km`:""})`:""}${i.cote?` | cote ${i.cote} €`:""}${i.seller?` | vendeur ${i.seller}`:""}${i.age?` | en ligne depuis ${i.age}`:""}${i.idx?` | ≈ ${ps5pct(i)} % d'une PS5 (${RESN[VIEW.res]}, ${settingsLabel()}), ${i.vram} Go, ${i.w} W`:""}${i.cpuF?` | facteur CPU ${i.cpuF}, ${i.watt} W, ventirad ${i.cooler===true?"inclus":i.cooler===false?"non":"?"}`:""}${i.watt&&!i.cpuF?` | ${i.watt} W`:""}${i.gb?` | ${i.gb} Go, ${i.sticks||"?"} barrette(s), format ${i.dimm==="ok"?"PC fixe confirmé":"NON vérifié"}`:""}${i.slots?` | ${i.slots} emplacements RAM`:""}${i.risk?` | RISQUE : ${i.risk}`:""}${i.ask?` | ${i.ask}`:""} | ${i.where||""}`).join("\n")).join("\n\n");
 }
 
 let lastView="";
@@ -1359,6 +1359,7 @@ const AI=(()=>{
     return found;
   }
   function amountIn(q){
+    q=q.replace(/(\d)[\s\u00a0\u202f.](?=\d{3}\b)/g,"$1");
     const m=q.match(/(\d{2,4})\s*(?:€|e\b|eur|euros?)/)||q.match(/\+\s*(\d{2,4})/)||q.match(/(?:^|[^a-zà-ÿ])(?:pour|de|à|a|sous|max|budget)\s+(\d{2,4})(?!\d)(?!\s*(?:%|go|hz|p\b|fps|mm|w\b|xt|ti|super))/);
     const v=m?+m[1]:0;
     return v&&/^(2060|2070|3060|3070|3080|6600|6650|6700|6750|6800|7600|7700|5500|5600|5700|5800|3600)$/.test(String(v))&&!/(€|eur|\+)/.test(m[0])?0:v;
@@ -1381,7 +1382,7 @@ const AI=(()=>{
       return {text:L.join("\n")};
     }
     // 2. FPS dans un jeu
-    if((game>=0||/\bfps\b|images par seconde/.test(q))&&!budget&&!(/ps5|playstation|console/.test(q)&&/moins ch|depass|egal|atteint|bat/.test(q))){
+    if((game>=0||/\bfps\b|images par seconde/.test(q))&&!budget&&!/amelior|upgrade|changer|booster|plus puissant|\+ ?\d/.test(q)&&!(/ps5|playstation|console/.test(q)&&/moins ch|depass|egal|atteint|bat/.test(q))){
       const S=gpus.length?{...sel,gpu:gpus[0]}:sel, ids=game>=0?[game]:GAMES.map((g,k)=>k);
       const a=fpsAt(S,0),b=fpsAt(S,1);
       const L=[`Avec ${ITEM[S.cpu].n} + ${ITEM[S.gpu].n} (réglages proches de la PS5, ${settingsLabel()}) :`];
@@ -1395,7 +1396,7 @@ const AI=(()=>{
       return {text:`${v[2]}.\n`+(pb.length?pb.map(x=>`${ICO[x[0]]} ${x[1]} : ${x[2]}`).join("\n"):"Socket, BIOS, format et nombre de barrettes de RAM, connecteurs et puissance d'alimentation, longueur de la carte graphique, hauteur du ventirad : tout est bon.")};
     }
     // 4. risques / arnaques
-    if(/risque|arnaque|suspect|fiable|confiance|escroc/.test(q)&&!budget&&!/ameli|upgrade|ps5/.test(q)){
+    if(/risque|arnaque|suspect|fiable|confiance|escroc/.test(q)&&safe&&!budget&&!/ameli|upgrade|ps5/.test(q)){
       const mine=Object.values(sel).map(id=>ITEM[id]).filter(i=>i&&i.src!=="none"&&riskyItem(i));
       const all=CATS.flatMap(c=>c.items).filter(i=>i.src==="lbc"&&riskyItem(i));
       const why=riskWhy;
@@ -1422,8 +1423,10 @@ const AI=(()=>{
     // 6. moins chère qui égale / dépasse la PS5
     if(/ps5|playstation|console/.test(q)){
       const target=(q.match(/(\d{2,3})\s*%/)||[])[1]?+q.match(/(\d{2,3})\s*%/)[1]:100;
-      const opts=candidates({pk,safe}).filter(x=>x.perf>=target).sort((a,b)=>a.t-b.t);
-      if(!opts.length) return {text:`Aucune config du site n'atteint ${target} % d'une PS5.`};
+      const all=candidates({pk,safe}).filter(x=>x.perf>=target).sort((a,b)=>a.t-b.t);
+      if(!all.length) return {text:`Aucune config du site n'atteint ${target} % d'une PS5.`};
+      const opts=budget?all.filter(x=>x.t<=budget):all;
+      if(!opts.length) return {text:`Aucune config sous ${budget} € n'atteint ${target} % d'une PS5${safe?" sans annonce à risque":""}. La moins chère qui y arrive :\n\n${describe(all[0],pk)}`,sel:all[0].sel};
       return {text:`La config la moins chère qui atteint ${target} % d'une PS5${safe?" (sans annonce à risque)":""} :\n\n${describe(opts[0],pk)}`,sel:opts[0].sel};
     }
     // 7. meilleure config pour un budget (sauf si on parle d'une carte graphique seule)
@@ -1439,7 +1442,7 @@ const AI=(()=>{
     if(gpuQ||/carte graphique|gpu|cg\b/.test(q)){
       const lim=amountIn(q);
       const list=items("gpu").filter(g=>!lim||cost(g,pk)<=lim).filter(g=>!safe||!riskyItem(g)).map(g=>({g,p:fpsAt({...sel,gpu:g.id},1).avg})).sort((a,b)=>b.p/cost(b.g,pk)-a.p/cost(a.g,pk)).slice(0,5);
-      return {text:`Cartes graphiques avec le meilleur rapport performance / prix${lim?` sous ${lim} €`:""} (1440p, avec ton processeur) :\n`+list.map(x=>`• ${x.g.n} — ${eur(cost(x.g,pk))} — ${x.p} % PS5 — ${x.g.vram} Go${x.g.idf?" — près de Vincennes":""}`).join("\n")};
+      return {text:`Cartes graphiques avec le meilleur rapport performance / prix${lim?` sous ${lim} €`:""} (1440p, avec ton processeur) :\n`+list.map(x=>`• ${x.g.n} — ${eur(cost(x.g,pk))} — ${x.p} % PS5 — ${x.g.vram} Go${x.g.idf?(x.g.km<=15?" — près de Vincennes":` — Île-de-France (≈ ${x.g.km} km)`):""}`).join("\n")};
     }
     // 9. RAM
     if(/\bram\b|memoire|barrette|ddr/.test(q)){
@@ -1456,7 +1459,7 @@ const AI=(()=>{
     if(/prix|combien|total|cout|cher/.test(q)){
       return {text:`Ta config : ${eur(total(sel,false))} tout livré, ${eur(total(sel,true))} avec la main propre en Île-de-France.\nPuissance : ${perf(sel).avg} % d'une PS5.`};
     }
-    return {text:"Je suis l'assistant du site (pas une IA) : je calcule à partir des annonces de la page. Exemples de questions :\n• « meilleure config sous 600 € »\n• « la moins chère qui dépasse la PS5 »\n• « améliorer ma config pour 80 € »\n• « ma config est compatible ? »\n• « fps dans Cyberpunk »\n• « RX 6800 ou RTX 3070 ? »\n• « quelles annonces sont risquées ? »\n• « quelle RAM prendre ? »\nAjoute « main propre » pour compter le retrait près de Vincennes.",help:1};
+    return {text:"Je suis l'assistant du site (pas une IA) : je calcule à partir des annonces de la page. Exemples de questions :\n• « meilleure config sous 600 € »\n• « la moins chère qui dépasse la PS5 »\n• « améliorer ma config pour 80 € »\n• « ma config est compatible ? »\n• « fps dans Cyberpunk »\n• « RX 6800 ou RTX 3070 ? »\n• « quelles annonces sont risquées ? »\n• « quelle RAM prendre ? »\nAjoute « main propre » pour compter le retrait en Île-de-FranceVincennes.",help:1};
   }
   function analyse(){
     const deals=CATS.flatMap(c=>c.items).filter(i=>i.cote&&!riskyItem(i)&&i.dimm!=="?"&&i.price<i.cote).sort((a,b)=>a.price/a.cote-b.price/b.cote).slice(0,5);

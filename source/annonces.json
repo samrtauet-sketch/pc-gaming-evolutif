@@ -62,7 +62,7 @@
   {"id": "g6750xt", "n": "RX 6750 XT 12 Go", "src": "vinted", "price": 340, "port": 5.9, "est": 1, "where": "Vinted (prix du 21/11)", "age": "?", "seller": "?", "url": "https://www.vinted.fr/items/10454616981-rx-6750-xt", "idx": 109, "vram": 12, "w": 250, "cote": 330, "len": 280, "pins8": 2, "psurec": 650, "ask": "Annonce ancienne : vérifie qu'elle est toujours en vente et demande la marque (la longueur dépend du modèle)."}
 ]},
 {"key": "ssd", "label": "SSD NVMe (neuf conseillé)", "items": [
-  {"id": "s500n", "n": "PNY CS1030 500 Go (neuf)", "src": "new", "price": 69.99, "port": 4, "est": 1, "where": "comparateur-gamer.fr, prix du 18/11 (port estimé)", "url": "https://www.comparateur-gamer.fr/ssd?cap=500go", "note": "Neuf et garanti : sans usure inconnue, sans usure inconnue."},
+  {"id": "s500n", "n": "PNY CS1030 500 Go (neuf)", "src": "new", "price": 69.99, "port": 4, "est": 1, "where": "comparateur-gamer.fr, prix du 18/11 (port estimé)", "url": "https://www.comparateur-gamer.fr/ssd?cap=500go", "note": "Neuf et garanti 3 ans : aucune usure cachée."},
   {"id": "s1tn", "n": "PNY CS1030 1 To (neuf)", "src": "new", "price": 139.99, "port": 4, "est": 1, "where": "comparateur-gamer.fr (port estimé)", "url": "https://www.comparateur-gamer.fr/ssd/1-to"},
   {"id": "s1tl", "n": "Lexar NM610 PRO 1 To (annoncé neuf)", "src": "lbc", "price": 90, "port": 3.9, "where": "Vitry-en-Artois (62)", "age": "2 j", "seller": "?", "url": "https://www.leboncoin.fr/ad/accessoires_informatique/3311217348", "cote": 125, "deal": 1, "ask": "Annoncé neuf : demande une photo de l'emballage scellé."}
 ]},
