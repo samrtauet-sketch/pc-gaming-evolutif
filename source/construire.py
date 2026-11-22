@@ -115,6 +115,13 @@ def main():
         c["items"] = garde
         if not garde:
             err(f"{c.get('key')} : plus aucune annonce livrable ou proche de Vincennes")
+    m = re.search(r"const REL=\{(.*?)\};", page, re.S)
+    rel_ids = set(re.findall(r"\b([a-z0-9]+):\[", m.group(1))) if m else set()
+    for c2 in cats:
+        if c2.get("key") == "gpu":
+            for i in c2.get("items", []):
+                if i.get("id") not in rel_ids and not (isinstance(i.get("rel"), list) and len(i["rel"]) == 2):
+                    err(f"gpu/{i.get('id')} : ajoute \"rel\": [1080p, 1440p] (puissance, RX 6700 XT = 100 ; copie celle d'un modèle identique)")
     ids = {i.get("id"): c.get("key") for c in cats if isinstance(c.get("items"), list) for i in c["items"]}
     if retirees:
         print(f"{len(retirees)} annonce(s) Leboncoin loin de Vincennes sans livraison confirmée, non affichées : {', '.join(retirees)}")
