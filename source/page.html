@@ -1353,7 +1353,7 @@ const AI=(()=>{
   GPUKEYS.forEach(e=>{ const c=items("gpu").filter(g=>{const n=" "+g.n.toLowerCase().replace(/(\d{4})(xt|ti)/g,"$1 $2")+" ";return n.includes(" "+e[0]+" ")&&!(e[0].length===4&&/^ (xt|ti|super)\b/.test(n.split(" "+e[0])[1]||""));}).sort((a,b)=>isRisky(a)-isRisky(b)||cost(a,false)-cost(b,false)); e[1]=c.length?c[0].id:(ITEM[e[1]]?e[1]:null); });
   for(let k=GPUKEYS.length-1;k>=0;k--) if(!GPUKEYS[k][1]) GPUKEYS.splice(k,1);
   function gpusIn(q){
-    const found=[]; let t=" "+q.replace(/(\d{4})(xt|ti|super)/g,"$1 $2")+" ";
+    const found=[]; let t=" "+q.replace(/\b(rtx|gtx|rx)(?=\d)/g,"$1 ").replace(/(\d{4})(xt|ti|super)/g,"$1 $2")+" ";
     GPUKEYS.forEach(([k,id])=>{ if(t.includes(" "+k+" ")||t.includes(" "+k.replace(" ","")+" ")||t.includes("rx "+k)||t.includes("rtx "+k)){ if(!found.includes(id)) found.push(id); t=t.split(k).join(" "); } });
     return found;
   }
@@ -1365,8 +1365,8 @@ const AI=(()=>{
   }
   const budgetIn=q=>{const a=amountIn(q);return a>=300?a:0;};
   function gameIn(q){
-    const keys=[["fortnite",0],["warzone",1],["cod",1],["forza",2],["red dead",3],["rdr",3],["cyberpunk",4],["spider",5],["alan wake",6]];
-    const f=keys.find(([k])=>q.includes(k)); return f?f[1]:-1;
+    const keys=[[/fortnite/,0],[/warzone|call of duty|\bcod\b/,1],[/forza/,2],[/red dead|\brdr/,3],[/cyberpunk/,4],[/spider/,5],[/alan wake/,6],[/valorant/,-2]];
+    const f=keys.find(([k])=>k.test(q)); return f?f[1]:-1;
   }
   function fpsAt(S,res){const old=VIEW.res;VIEW.res=res;const p=perf(S);VIEW.res=old;return p;}
 
@@ -1381,10 +1381,13 @@ const AI=(()=>{
       return {text:L.join("\n")};
     }
     // 2. FPS dans un jeu
-    if((game>=0||/\bfps\b|images par seconde/.test(q))&&!budget&&!/amelior|upgrade|changer|booster|plus puissant|\+ ?\d/.test(q)&&!(/ps5|playstation|console/.test(q)&&/moins ch|depass|egal|atteint|bat/.test(q))){
-      const S=gpus.length?{...sel,gpu:gpus[0]}:sel, ids=game>=0?[game]:GAMES.map((g,k)=>k);
+    if((game!==-1||/\bfps\b|images par seconde/.test(q))&&!budget&&!/amelior|upgrade|changer|booster|plus puissant|\+ ?\d/.test(q)&&!(/ps5|playstation|console/.test(q)&&/moins ch|depass|egal|atteint|bat/.test(q))){
+      const S=gpus.length?{...sel,gpu:gpus[0]}:sel;
+      if(game===-2) return {text:`Valorant avec ${ITEM[S.cpu].n} : ≈ ${perf(S).esport} fps (c'est le processeur qui compte dans ce jeu). PS5 : 120 fps maximum.`};
+      const ids=game>=0?[game]:GAMES.map((g,k)=>k);
+      const autre=game<0&&/\b(gta|minecraft|roblox|apex|league of legends|lol|fifa|fc ?2\d|rocket league|elden|overwatch|cs ?2|counter|rainbow|the finals|marvel rivals|hogwarts|starfield)\b/.test(q);
       const a=fpsAt(S,0),b=fpsAt(S,1);
-      const L=[`Avec ${ITEM[S.cpu].n} + ${ITEM[S.gpu].n} (réglages proches de la PS5, ${settingsLabel()}) :`];
+      const L=[(autre?"Ce jeu n'est pas calculé par le site ; voici les jeux de référence.\n":"")+`Avec ${ITEM[S.cpu].n} + ${ITEM[S.gpu].n} (réglages proches de la PS5, ${settingsLabel()}) :`];
       ids.forEach(k=>L.push(`• ${GAMES[k].n} : ≈ ${a.games[k].fps} fps en 1080p, ≈ ${b.games[k].fps} fps en 1440p (limité par : ${b.games[k].lim}). PS5 : ${GAMES[k].ps5} fps (${GAMES[k].ps5m}).`));
       L.push("Estimations à ± 10-15 % d'après les tests publiés.");
       return {text:L.join("\n")};
@@ -1447,6 +1450,19 @@ const AI=(()=>{
       const lim=amountIn(q);
       const list=items("gpu").filter(g=>!lim||cost(g,pk)<=lim).filter(g=>!safe||!riskyItem(g)).map(g=>({g,p:fpsAt({...sel,gpu:g.id},1).avg})).sort(/plus puissant/.test(q)?(a,b)=>b.p-a.p:(a,b)=>b.p/cost(b.g,pk)-a.p/cost(a.g,pk)).slice(0,5);
       return {text:`${/plus puissant/.test(q)?"Cartes graphiques les plus puissantes":"Cartes graphiques avec le meilleur rapport performance / prix"}${lim?` sous ${lim} €`:""} (1440p, avec ton processeur) :\n`+list.map(x=>`• ${x.g.n} — ${eur(cost(x.g,pk))} — ${x.p} % PS5 — ${x.g.vram} Go${x.g.idf?(x.g.km<=15?" — près de Vincennes":` — Île-de-France (≈ ${x.g.km} km)`):""}`).join("\n")};
+    }
+    // 8 bis. une seule carte graphique nommée
+    if(gpus.length===1&&!/meilleur|plus puissant|sous \d|classement/.test(q)){
+      const g=ITEM[gpus[0]], cur=ITEM[sel.gpu], a=perf({...sel,gpu:g.id}).avg, b=perf(sel).avg, ex=cost(g,pk)-cost(cur,pk);
+      return {text:`${g.n} — ${costLine(g,pk)}\n${g.vram} Go de mémoire vidéo · ≈ ${a} % d'une PS5 avec ton processeur (${RESN[VIEW.res]}, ${settingsLabel()})${g.where?` · ${g.where}`:""}`+
+        (riskyItem(g)?`\n⚠ Annonce à vérifier : ${riskWhy(g)}`:"")+
+        (g.id===sel.gpu?"\nC'est la carte de ta config.":`\nPar rapport à ta ${cur.n} : ${a-b>=0?"+":""}${a-b} % de puissance pour ${ex>=0?"+":"−"}${eur(Math.abs(ex))}.`)};
+    }
+    // 8 ter. processeur
+    if(/processeur|\bcpu\b|ryzen|\b5[5-8]00/.test(q)){
+      const b=perf(sel).avg, list=items("cpu").filter(c=>!safe||!riskyItem(c)).map(c=>{const S={...sel,cpu:c.id};return {c,p:perf(S).avg,ex:cost(c,pk)-cost(ITEM[sel.cpu],pk),bad:(compat(S).find(x=>x[0]==="bad")||[])[2]};}).sort((x,y)=>y.p-x.p||x.ex-y.ex);
+      return {text:`Processeurs avec ta carte graphique (${ITEM[sel.gpu].n}, ${RESN[VIEW.res]}) :\n`+list.map(x=>`• ${x.c.n} — ${eur(cost(x.c,pk))} — ${x.p} % PS5${x.c.id===sel.cpu?" (le tien)":` (${x.p-b>=0?"+":""}${x.p-b} % pour ${x.ex>=0?"+":"−"}${eur0(Math.abs(x.ex))})`}${x.c.cooler===true?" · ventirad fourni":""}${x.bad?` · ⚠ ${x.bad}`:""}`).join("\n")+
+        "\nEn jeu, c'est la carte graphique qui compte le plus : un processeur plus cher ne sert que si le tien la freine."};
     }
     // 9. RAM
     if(/\bram\b|memoire|barrette|ddr/.test(q)){
