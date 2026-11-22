@@ -687,7 +687,7 @@ function notes(sel){
   if(sel.win==="wingrey") out.push(["warn","Clé Windows à bas prix : zone grise, elle peut être révoquée. Windows non activé fonctionne aussi pour jouer."]);
   if(sel.usb==="nousb") out.push(["warn","Il te faut une clé USB de 8 Go ou plus pour installer Windows (outil gratuit Microsoft « Media Creation Tool »)."]);
   if(gpu.idx>=120&&["aoc24r","lg24","aoc24"].includes(sel.screen)) out.push(["warn","Avec cette carte, un écran 1440p serait mieux exploité qu'un 1080p."]);
-  const estN=Object.values(sel).map(id=>ITEM[id]).filter(i=>i.est).length;
+  const estN=Object.values(sel).map(id=>ITEM[id]).filter(i=>i&&i.est&&i.port>0).length;
   if(estN) out.push(["warn",`${estN} prix avec frais de port estimés : vérifie le total sur le site marchand avant de commander.`]);
   if(cs.id==="e302"&&gpu.w>=230&&sel.fans==="nofan") out.push(["warn",`Carte de 230 W ou plus dans l'Elite 302 : ajoute 3 ventilateurs (${eur0(cost(ITEM.tlc,false))}) pour évacuer l'air chaud.`]);
   if(cs.id==="forge"&&sel.fans==="tlc") out.push(["warn","Le Forge 120A a déjà 6 ventilateurs : les 3 en plus sont inutiles."]);
@@ -1037,8 +1037,8 @@ function priceChecks(sel){
     }
     if(i.risk&&!i.livr_auto&&!(i.cote&&i.price/i.cote<=0.6)) L.push(["bad",nm,i.risk+"."]);
     if(i.livr_auto&&i.idf) L.push(["warn",nm,i.risk[0].toUpperCase()+i.risk.slice(1)+"."]);
-    if(i.est) L.push(["warn",nm,"Frais de port estimés : vérifie le total sur le site marchand."]);
-    if(/juillet|revérifier/i.test(i.where||"")) L.push(["warn",nm,"Prix relevé il y a un moment : à revérifier avant d'acheter."]);
+    if(i.est&&i.port>0) L.push(["warn",nm,"Frais de port estimés : vérifie le total sur le site marchand."]);
+    if(/juillet|revérifier|jusqu/i.test(i.where||"")) L.push(["warn",nm,"Prix relevé il y a un moment : à revérifier avant d'acheter."]);
     if(i.src==="lbc"&&!i.idf) L.push(["warn",nm,"Hors Île-de-France : vérifie que le vendeur accepte l'envoi."]);
     if(i.seller==="sans avis"||/^[0-3](,\d)?\/5/.test(i.seller||"")) L.push(["warn",nm,i.seller==="sans avis"?"Vendeur sans avis : regarde son profil et paie via le site.":`Vendeur noté ${i.seller} : peu fiable, paie via le site.`]);
   });
@@ -1470,6 +1470,12 @@ const AI=(()=>{
       const G=gpus.length===1?{...sel,gpu:gpus[0]}:sel, b=perf(G).avg, list=items("cpu").filter(c=>!safe||!riskyItem(c)).map(c=>{const S={...G,cpu:c.id};return {c,p:perf(S).avg,ex:cost(c,pk)-cost(ITEM[sel.cpu],pk),bad:(compat(S).find(x=>x[0]==="bad")||[])[2]};}).sort((x,y)=>y.p-x.p||x.ex-y.ex);
       return {text:`Processeurs avec ${G===sel?"ta carte graphique":"la carte"} (${ITEM[G.gpu].n}, ${RESN[VIEW.res]}) :\n`+list.map(x=>`• ${x.c.n} — ${eur(cost(x.c,pk))} — ${x.p} % PS5${x.c.id===sel.cpu?" (le tien)":` (${x.p-b>=0?"+":""}${x.p-b} % pour ${x.ex>=0?"+":"−"}${eur0(Math.abs(x.ex))})`}${x.c.cooler===true?" · ventirad fourni":""}${x.bad?` · ⚠ ${x.bad}`:""}`).join("\n")+
         "\nEn jeu, c'est la carte graphique qui compte le plus : un processeur plus cher ne sert que si le tien la freine."};
+    }
+    // 8 quater. mémoire vidéo
+    if(/memoire video|vram/.test(q)){
+      const g=ITEM[sel.gpu], v=perf(sel).games.filter(x=>x.vramHit);
+      return {text:`Ta carte (${g.n}) a ${g.vram} Go de mémoire vidéo. En ${RESN[VIEW.res]} (${settingsLabel()}), elle ${v.length?`est saturée dans ${v.length} jeu(x) sur ${GAMES.length} : il faudra baisser la qualité des textures dans ces jeux`:"suffit dans les jeux calculés"}.
+8 Go suffisent en 1080p et souvent en 1440p ; 12 Go ou plus sont plus tranquilles pour les gros jeux récents et la 4K.`};
     }
     // 9. RAM
     if(/\bram\b|memoire|barrette|ddr/.test(q)){
