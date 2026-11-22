@@ -464,7 +464,7 @@ details.why p{margin-top:8px}
     <div class="card"><h3>Neuf ou occasion ?</h3><ul>
       <li><strong>Toujours neuf</strong> : alimentation (une mauvaise peut griller tout le PC), carte mère (socket ou connecteurs abîmés, BIOS trop ancien pour les Ryzen 5000), SSD (usure invisible sur une pièce d'occasion).</li>
       <li><strong>Neuf car presque gratuit</strong> : pâte thermique, ventilateurs, ventirad, clé USB, câbles, Wi-Fi, clavier/souris : l'occasion ferait gagner 1 ou 2 €.</li>
-      <li><strong>Occasion</strong> : carte graphique et RAM (16 Go à 153 € neufs contre 70 à 90 € d'occasion vérifiée). <strong>Processeur</strong> : le neuf (garanti 3 ans, ventirad fourni) ne coûte souvent que 20 à 40 € de plus, c'est un bon choix. En occasion, vérifie sur photo qu'aucune broche du processeur n'est tordue.</li>
+      <li><strong>Occasion</strong> : carte graphique et RAM (16 Go à 153 € neufs contre 70 à 90 € d'occasion vérifiée). <strong>Processeur</strong> : le neuf (garanti 3 ans, ventirad fourni) coûte à peine plus cher, parfois même moins cher qu'un modèle proche d'occasion : c'est un bon choix. En occasion, vérifie sur photo qu'aucune broche du processeur n'est tordue.</li>
       <li><strong>AliExpress</strong> : rien de retenu. Aucune offre récente vérifiable pour les CPU, et risque de fausses capacités sur RAM/SSD.</li></ul></div>
     <div class="card"><h3>RAM de PC fixe ou de portable ?</h3><ul>
       <li><strong>PC fixe (DIMM)</strong> : barrette d'environ 13 cm, 288 broches. Étiquette « PC4-…-U » ou « UDIMM ». Les gammes gaming à dissipateur (Vengeance LPX / RGB, Trident Z, Ripjaws V, Fury Beast) sont toutes pour PC fixe.</li>
@@ -677,9 +677,6 @@ function notes(sel){
   const out=[];
   const need=(gpu.w+cpu.watt+75)*1.5;
   const rec0=GPUREC[gpu.id]||gpu.psurec||0;
-  if(psu.watt<need) out.push(["bad",`Alimentation trop juste : environ ${Math.ceil(need/50)*50} W conseillés pour cette carte graphique (${gpu.w} W).`]);
-  else if(psu.watt<rec0) out.push(["warn",`Alimentation juste : ${psu.watt} W suffisent pour ≈ ${Math.round(gpu.w+cpu.watt+75)} W, mais le fabricant de la carte conseille ${rec0} W pour les pics.`]);
-  else out.push(["good",`Alimentation OK : ${psu.watt} W pour environ ${Math.round(gpu.w+cpu.watt+75)} W consommés en jeu.`]);
   if(sel.cool==="stock"&&cpu.cooler===false) out.push(["bad","Ce processeur est vendu sans ventirad : choisis le Thermalright."]);
   if(sel.cool==="stock"&&cpu.cooler==="?") out.push(["warn",`Demande au vendeur si le processeur est livré avec son ventirad. Sinon, ajoute le Thermalright (${eur0(cost(ITEM.ax120,false))}).`]);
   if(sel.cool==="ax120"&&cpu.cooler===true) out.push(["good",`${cpu.n} est vendu avec un ventirad : tu peux retirer le Thermalright et économiser ${eur0(cost(ITEM.ax120,false))} (garde-le si tu veux un PC plus silencieux).`]);
@@ -701,7 +698,7 @@ function notes(sel){
   else if(mb.slots===4&&ram.sticks===2) out.push(["good","Carte mère à 4 emplacements : 2 slots restent libres pour ajouter de la RAM plus tard."]);
   else if(mb.slots===2) out.push(["warn",`Carte mère à 2 emplacements RAM : pour évoluer plus tard, il faudra remplacer les barrettes. La B550M K (4 slots) coûte ${(()=>{const d=Math.round(cost(ITEM.b550mk,false)-cost(mb,false));return d>0?"environ "+d+" € de plus":d<0?Math.abs(d)+" € de moins":"le même prix";})()}.`]);
   if(ram.dimm!=="ok") out.push(["warn","RAM de PC fixe obligatoire : barrette DIMM d'environ 13 cm, 288 broches. Sur l'étiquette, « PC4-…-U » = PC fixe ✔, « …-S » ou « SODIMM » = portable ✘ (7 cm, ne rentre pas), « …-R » ou « ECC » = serveur ✘."]);
-  if(gpu.vram<=8) out.push(["warn",`${gpu.vram} Go de mémoire vidéo : il faudra baisser la qualité des textures dans les gros jeux récents.`]);
+  if(gpu.vram<=8&&!perf(sel).games.some(x=>x.vramHit)) out.push(["warn",`${gpu.vram} Go de mémoire vidéo : il faudra baisser la qualité des textures dans les gros jeux récents.`]);
   if(gpu.vram>=16) out.push(["good","16 Go de mémoire vidéo : les textures restent au maximum pendant des années."]);
   const far=Object.values(sel).map(id=>ITEM[id]).filter(i=>i.src==="lbc"&&!i.idf).length;
   if(far) out.push(["warn",`${far} pièce(s) Leboncoin hors Île-de-France : vérifie que la livraison est possible avant de payer.`]);
@@ -710,7 +707,7 @@ function notes(sel){
 
 /* Presets */
 const PRESETS=[
- {name:"Éco Vincennes",tag:"Le moins cher sans risque : RTX 2060 Super à 9 km, processeur neuf",sel:{cpu:"r5500n",ram:"r16v",gpu:"g2060s",psu:"cx550",cool:"stock",fans:"nofan",mb:"b550mk",ssd:"s500n",case:"e302",wifi:"nowifi"}},
+ {name:"Éco Vincennes",tag:"Petit budget sans risque : RTX 2060 Super à 9 km, processeur neuf",sel:{cpu:"r5500n",ram:"r16v",gpu:"g2060s",psu:"cx550",cool:"stock",fans:"nofan",mb:"b550mk",ssd:"s500n",case:"e302",wifi:"nowifi"}},
  {name:"Égal PS5",tag:"RTX 3060 Ti (Vinted, paiement protégé) + Ryzen 5 5500 neuf",sel:{cpu:"r5500n",ram:"r16v",gpu:"g3060tiv",psu:"a650",cool:"stock",fans:"nofan",mb:"b550mk",ssd:"s500n",case:"e302",wifi:"nowifi"}},
  {name:"Recommandé",tag:"Le meilleur prix par point avec une vraie marge sur la PS5, sans annonce risquée : RTX 3070 Vinted, Ryzen 5 5600 neuf",pick:1,sel:{cpu:"r5600n",ram:"r16v",gpu:"g3070z",psu:"a650",cool:"stock",fans:"nofan",mb:"b550mk",ssd:"s500n",case:"e302",wifi:"nowifi"}},
  {name:"Recommandé 32 Go",tag:"Le même avec 32 Go (près de Vincennes) et 1 To",sel:{cpu:"r5600n",ram:"r32rgb",gpu:"g3070z",psu:"a650",cool:"stock",fans:"nofan",mb:"b550mk",ssd:"s1tn",case:"e302",wifi:"nowifi"}},
@@ -720,7 +717,7 @@ const PRESETS=[
  {name:"RX 6800 XT",tag:"1440p ultra, mais la carte est à Vichy : demande l'envoi au vendeur",sel:{cpu:"r5600xv",ram:"r32rgb",gpu:"g6800xt",psu:"cx750",cool:"ax120",fans:"tlc",mb:"b550mk",ssd:"s1tn",case:"e302",wifi:"nowifi"}},
  {name:"Maximum AM4",tag:"5800X3D + RX 6800 XT, vendeurs loin de Vincennes : livraison à confirmer",sel:{cpu:"r5800",ram:"r32rgb",gpu:"g6800xt",psu:"cx750",cool:"ax120",fans:"tlc",mb:"b550mk",ssd:"s1tn",case:"e302",wifi:"nowifi"}},
  {name:"RX 6800 à 230 €",tag:"La meilleure perf par euro, mais annonce à vérifier : main propre avec test",sel:{cpu:"r5600xv",ram:"r16lpxw",gpu:"g6800",psu:"cx750",cool:"ax120",fans:"tlc",mb:"b550mk",ssd:"s500n",case:"e302",wifi:"nowifi"}},
- {name:"Ultra-éco",tag:"Le moins cher de tout, annonces à vérifier",sel:{cpu:"r3600e",ram:"r16lpx24",gpu:"g2060",psu:"cx550",cool:"stock",fans:"nofan",mb:"b550mk",ssd:"s500n",case:"e302",wifi:"nowifi"}}
+ {name:"Ultra-éco",tag:"Le plus petit budget, mais annonces à vérifier",sel:{cpu:"r3600e",ram:"r16lpx24",gpu:"g2060",psu:"cx550",cool:"stock",fans:"nofan",mb:"b550mk",ssd:"s500n",case:"e302",wifi:"nowifi"}}
 ];
 
 
