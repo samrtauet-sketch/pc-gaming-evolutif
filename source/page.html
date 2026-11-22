@@ -693,7 +693,7 @@ function notes(sel){
   if(estN) out.push(["warn",`${estN} prix avec frais de port estimés : vérifie le total sur le site marchand avant de commander.`]);
   if(cs.id==="e302"&&gpu.w>=230&&sel.fans==="nofan") out.push(["warn",`Carte de 230 W ou plus dans l'Elite 302 : ajoute 3 ventilateurs (${eur0(cost(ITEM.tlc,false))}) pour évacuer l'air chaud.`]);
   if(cs.id==="forge"&&sel.fans==="tlc") out.push(["warn","Le Forge 120A a déjà 6 ventilateurs : les 3 en plus sont inutiles."]);
-  if(gpu.risk) out.push(["bad",`${gpu.n} : ${gpu.risk}.${gpu.idf?" Main propre avec test, ou paiement sécurisé sur le site.":" Paie uniquement avec le paiement sécurisé du site."}`]);
+  if(gpu.risk&&!gpu.livr_auto) out.push(["bad",`${gpu.n} : ${gpu.risk}.${/main propre/i.test(gpu.risk)?" Ou paiement sécurisé sur le site.":gpu.idf?" Main propre avec test, ou paiement sécurisé sur le site.":" Paie uniquement avec le paiement sécurisé du site."}`]);
   if(ram.risk) out.push(["bad",`RAM : ${ram.risk}.`]);
   else if(ram.dimm==="ok") out.push(["good",`RAM de PC fixe confirmée : ${ram.why}.`]);
   if(ram.ask) out.push(["warn",ram.ask]);
@@ -1037,7 +1037,8 @@ function priceChecks(sel){
       else if(d>=15) L.push(["warn",nm,`${d} % au-dessus de la cote (${i.cote} €) : négocie ou cherche moins cher.`]);
       else if(d<=-10) L.push(["ok",nm,`Bon prix : ${-d} % sous la cote (${i.cote} €).`]);
     }
-    if(i.risk&&!(i.cote&&i.price/i.cote<=0.6)) L.push(["bad",nm,i.risk+"."]);
+    if(i.risk&&!i.livr_auto&&!(i.cote&&i.price/i.cote<=0.6)) L.push(["bad",nm,i.risk+"."]);
+    if(i.livr_auto&&i.idf) L.push(["warn",nm,i.risk[0].toUpperCase()+i.risk.slice(1)+"."]);
     if(i.est) L.push(["warn",nm,"Frais de port estimés : vérifie le total sur le site marchand."]);
     if(/juillet|revérifier/i.test(i.where||"")) L.push(["warn",nm,"Prix relevé il y a un moment : à revérifier avant d'acheter."]);
     if(i.src==="lbc"&&!i.idf) L.push(["warn",nm,"Hors Île-de-France : vérifie que le vendeur accepte l'envoi."]);
@@ -1435,7 +1436,7 @@ const AI=(()=>{
     if(budget>=300&&!gpuQ){
       const opts=candidates({pk,safe,gb:/32 ?go/.test(q)?32:0}).filter(x=>x.t<=budget).sort((a,b)=>b.perf-a.perf||a.t-b.t);
       const risky=safe?candidates({pk,safe:false,gb:/32 ?go/.test(q)?32:0}).filter(x=>x.t<=budget).sort((a,b)=>b.perf-a.perf||a.t-b.t)[0]:null;
-      const alt=risky&&(!opts.length||risky.perf>=opts[0].perf+8)?`\n\nEn acceptant les annonces à risque (main propre avec test obligatoire) : ${risky.perf} % d'une PS5 pour ${eur(risky.t)} (${ITEM[risky.sel.cpu].n} + ${ITEM[risky.sel.gpu].n}). Ajoute « avec risque » à ta question pour la voir en détail.`:"";
+      const alt=risky&&(!opts.length||risky.perf>=opts[0].perf+8)?`\n\nEn acceptant les annonces à risque (paiement sécurisé du site, ou main propre avec test si le vendeur est en Île-de-France) : ${risky.perf} % d'une PS5 pour ${eur(risky.t)} (${ITEM[risky.sel.cpu].n} + ${ITEM[risky.sel.gpu].n}). Ajoute « avec risque » à ta question pour la voir en détail.`:"";
       if(!opts.length) return {text:`Aucune config complète et compatible sous ${budget} €${safe?" sans annonce à risque":""}. La moins chère coûte ${eur(Math.min(...candidates({pk,safe}).map(x=>x.t)))}.`+alt};
       return {text:`Meilleure config sous ${budget} € ${pk?"(main propre quand possible)":"tout livré"}${safe?", sans annonce à risque":""} :\n\n${describe(opts[0],pk)}`+alt,sel:opts[0].sel};
     }
