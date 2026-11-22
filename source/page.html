@@ -1357,6 +1357,10 @@ const AI=(()=>{
     GPUKEYS.forEach(([k,id])=>{ if(t.includes(" "+k+" ")||t.includes(" "+k.replace(" ","")+" ")||t.includes("rx "+k)||t.includes("rtx "+k)){ if(!found.includes(id)) found.push(id); t=t.split(k).join(" "); } });
     return found;
   }
+  function cpuIn(q){
+    const K=[[/x3d|5800/,"r5800"],[/5700/,"r5700xv"],[/5600 ?x/,"r5600xv"],[/5600/,"r5600n"],[/5500/,"r5500n"],[/3600/,"r3600e"]];
+    const f=K.find(([r,id])=>r.test(q)&&ITEM[id]); return f?f[1]:null;
+  }
   function amountIn(q){
     q=q.replace(/(^|[^\w])(\d{1,3})[\s\u00a0\u202f.](?=\d{3}\b)/g,"$1$2");
     const m=q.match(/(\d{2,4})\s*(?:€|e\b|eur|euros?)/)||q.match(/\+\s*(\d{2,4})/)||q.match(/(?:^|[^a-zà-ÿ])(?:pour|de|à|a|sous|max|budget)\s+(\d{2,4})(?!\d)(?!\s*(?:%|go|hz|p\b|fps|mm|w\b|xt|ti|super))/);
@@ -1381,7 +1385,7 @@ const AI=(()=>{
       return {text:L.join("\n")};
     }
     // 2. FPS dans un jeu
-    if((game!==-1||/\bfps\b|images par seconde/.test(q))&&!budget&&!/amelior|upgrade|changer|booster|plus puissant|\+ ?\d/.test(q)&&!(/ps5|playstation|console/.test(q)&&/moins ch|depass|egal|atteint|bat/.test(q))){
+    if((game!==-1||/\bfps\b|images par seconde/.test(q))&&!(/carte graphique|\bgpu\b|\bcg\b/.test(q)&&/quel|meilleur|prendre|conseil/.test(q))&&!budget&&!/amelior|upgrade|changer|booster|plus puissant|\+ ?\d/.test(q)&&!(/ps5|playstation|console/.test(q)&&/moins ch|depass|egal|atteint|bat/.test(q))){
       const S=gpus.length?{...sel,gpu:gpus[0]}:sel;
       if(game===-2) return {text:`Valorant avec ${ITEM[S.cpu].n} : ≈ ${perf(S).esport} fps (c'est le processeur qui compte dans ce jeu). PS5 : 120 fps maximum.`};
       const ids=game>=0?[game]:GAMES.map((g,k)=>k);
@@ -1393,10 +1397,12 @@ const AI=(()=>{
       return {text:L.join("\n")};
     }
     // 3. compatibilité de la config actuelle
-    if(/compat|marche ensemble|fonctionne|rentre|bios|socket/.test(q)){
-      const S=gpus.length===1&&gpus[0]!==sel.gpu?{...sel,gpu:gpus[0]}:sel;
+    if(/compat|marche ensemble|fonctionne|rentre|bios|socket/.test(q)&&!amountIn(q)){
+      const S={...sel}, ch=[]; const c1=cpuIn(q);
+      if(gpus.length===1&&gpus[0]!==sel.gpu){S.gpu=gpus[0];ch.push(`${ITEM[S.gpu].n} à la place de ${ITEM[sel.gpu].n}`);}
+      if(c1&&c1!==sel.cpu){S.cpu=c1;ch.push(`${ITEM[c1].n} à la place de ${ITEM[sel.cpu].n}`);}
       const C=compat(S), v=verdictOf(C), pb=C.filter(x=>x[0]!=="ok");
-      return {text:(S!==sel?`Avec ${ITEM[S.gpu].n} à la place de ${ITEM[sel.gpu].n} :\n`:"")+`${v[2]}.\n`+(pb.length?pb.map(x=>`${ICO[x[0]]} ${x[1]} : ${x[2]}`).join("\n"):"Socket, BIOS, format et nombre de barrettes de RAM, connecteurs et puissance d'alimentation, longueur de la carte graphique, hauteur du ventirad : tout est bon.")};
+      return {text:(ch.length?`Avec ${ch.join(" et ")} :\n`:"")+`${v[2]}.\n`+(pb.length?pb.map(x=>`${ICO[x[0]]} ${x[1]} : ${x[2]}`).join("\n"):"Socket, BIOS, format et nombre de barrettes de RAM, connecteurs et puissance d'alimentation, longueur de la carte graphique, hauteur du ventirad : tout est bon.")};
     }
     // 4. risques / arnaques
     if(/risque|arnaque|suspect|fiable|confiance|escroc/.test(q)&&safe&&!budget&&!/ameli|upgrade|ps5/.test(q)){
@@ -1408,7 +1414,7 @@ const AI=(()=>{
         "\n\nRègle : paiement sécurisé Leboncoin ou Vinted uniquement, ou main propre avec test."};
     }
     // 5. améliorer la config pour X €
-    if(/(ma|mon) (config|pc|ordi)/.test(q)&&/ps5|playstation|console/.test(q)&&!budget&&!/moins ch|amelior|upgrade/.test(q)){
+    if(/(ma|mon) (config|pc|ordi)/.test(q)&&/ps5|playstation|console/.test(q)&&!amountIn(q)&&!/moins ch|amelior|upgrade|changer|booster|plus puissant|\+ ?\d/.test(q)){
       const p=perf(sel), win=p.games.filter(x=>x.fps>=GAMES[p.games.indexOf(x)].ps5).length;
       return {text:`Ta config : ${p.avg} % d'une PS5 en ${RESN[VIEW.res]} (${settingsLabel()}). ${p.avg>=100?"Elle est plus puissante que la PS5.":"Elle est moins puissante que la PS5."}\nPlus d'images/s que la PS5 dans ${win} jeu(x) sur ${p.games.length} :\n`+p.games.map((x,k)=>`• ${GAMES[k].n} : ≈ ${x.fps} fps (PS5 : ${GAMES[k].ps5})`).join("\n")};
     }
@@ -1452,7 +1458,7 @@ const AI=(()=>{
       return {text:`${/plus puissant/.test(q)?"Cartes graphiques les plus puissantes":"Cartes graphiques avec le meilleur rapport performance / prix"}${lim?` sous ${lim} €`:""} (1440p, avec ton processeur) :\n`+list.map(x=>`• ${x.g.n} — ${eur(cost(x.g,pk))} — ${x.p} % PS5 — ${x.g.vram} Go${x.g.idf?(x.g.km<=15?" — près de Vincennes":` — Île-de-France (≈ ${x.g.km} km)`):""}`).join("\n")};
     }
     // 8 bis. une seule carte graphique nommée
-    if(gpus.length===1&&!/meilleur|plus puissant|sous \d|classement/.test(q)){
+    if(gpus.length===1&&!/meilleur|plus puissant|sous \d|classement|processeur|\bcpu\b|ryzen/.test(q)){
       const g=ITEM[gpus[0]], cur=ITEM[sel.gpu], a=perf({...sel,gpu:g.id}).avg, b=perf(sel).avg, ex=cost(g,pk)-cost(cur,pk);
       return {text:`${g.n} — ${costLine(g,pk)}\n${g.vram} Go de mémoire vidéo · ≈ ${a} % d'une PS5 avec ton processeur (${RESN[VIEW.res]}, ${settingsLabel()})${g.where?` · ${g.where}`:""}`+
         (riskyItem(g)?`\n⚠ Annonce à vérifier : ${riskWhy(g)}`:"")+
@@ -1460,8 +1466,8 @@ const AI=(()=>{
     }
     // 8 ter. processeur
     if(/processeur|\bcpu\b|ryzen|\b5[5-8]00/.test(q)){
-      const b=perf(sel).avg, list=items("cpu").filter(c=>!safe||!riskyItem(c)).map(c=>{const S={...sel,cpu:c.id};return {c,p:perf(S).avg,ex:cost(c,pk)-cost(ITEM[sel.cpu],pk),bad:(compat(S).find(x=>x[0]==="bad")||[])[2]};}).sort((x,y)=>y.p-x.p||x.ex-y.ex);
-      return {text:`Processeurs avec ta carte graphique (${ITEM[sel.gpu].n}, ${RESN[VIEW.res]}) :\n`+list.map(x=>`• ${x.c.n} — ${eur(cost(x.c,pk))} — ${x.p} % PS5${x.c.id===sel.cpu?" (le tien)":` (${x.p-b>=0?"+":""}${x.p-b} % pour ${x.ex>=0?"+":"−"}${eur0(Math.abs(x.ex))})`}${x.c.cooler===true?" · ventirad fourni":""}${x.bad?` · ⚠ ${x.bad}`:""}`).join("\n")+
+      const G=gpus.length===1?{...sel,gpu:gpus[0]}:sel, b=perf(G).avg, list=items("cpu").filter(c=>!safe||!riskyItem(c)).map(c=>{const S={...G,cpu:c.id};return {c,p:perf(S).avg,ex:cost(c,pk)-cost(ITEM[sel.cpu],pk),bad:(compat(S).find(x=>x[0]==="bad")||[])[2]};}).sort((x,y)=>y.p-x.p||x.ex-y.ex);
+      return {text:`Processeurs avec ${G===sel?"ta carte graphique":"la carte"} (${ITEM[G.gpu].n}, ${RESN[VIEW.res]}) :\n`+list.map(x=>`• ${x.c.n} — ${eur(cost(x.c,pk))} — ${x.p} % PS5${x.c.id===sel.cpu?" (le tien)":` (${x.p-b>=0?"+":""}${x.p-b} % pour ${x.ex>=0?"+":"−"}${eur0(Math.abs(x.ex))})`}${x.c.cooler===true?" · ventirad fourni":""}${x.bad?` · ⚠ ${x.bad}`:""}`).join("\n")+
         "\nEn jeu, c'est la carte graphique qui compte le plus : un processeur plus cher ne sert que si le tien la freine."};
     }
     // 9. RAM
