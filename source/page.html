@@ -1039,7 +1039,7 @@ function priceChecks(sel){
     if(i.est) L.push(["warn",nm,"Frais de port estimés : vérifie le total sur le site marchand."]);
     if(/juillet|revérifier/i.test(i.where||"")) L.push(["warn",nm,"Prix relevé il y a un moment : à revérifier avant d'acheter."]);
     if(i.src==="lbc"&&!i.idf) L.push(["warn",nm,"Hors Île-de-France : vérifie que le vendeur accepte l'envoi."]);
-    if(i.seller==="sans avis"||/^[0-3](,\d)?\/5/.test(i.seller||"")) L.push(["warn",nm,`Vendeur peu fiable ou sans avis (${i.seller}).`]);
+    if(i.seller==="sans avis"||/^[0-3](,\d)?\/5/.test(i.seller||"")) L.push(["warn",nm,i.seller==="sans avis"?"Vendeur sans avis : regarde son profil et paie via le site.":`Vendeur noté ${i.seller} : peu fiable, paie via le site.`]);
   });
   if(!L.length) L.push(["ok","Prix","Aucune anomalie de prix détectée."]);
   const order={bad:0,warn:1,ok:2}; return L.sort((a,b)=>order[a[0]]-order[b[0]]);
@@ -1434,7 +1434,7 @@ const AI=(()=>{
       const opts=candidates({pk,safe,gb:/32 ?go/.test(q)?32:0}).filter(x=>x.t<=budget).sort((a,b)=>b.perf-a.perf||a.t-b.t);
       const risky=safe?candidates({pk,safe:false,gb:/32 ?go/.test(q)?32:0}).filter(x=>x.t<=budget).sort((a,b)=>b.perf-a.perf||a.t-b.t)[0]:null;
       const alt=risky&&(!opts.length||risky.perf>=opts[0].perf+8)?`\n\nEn acceptant les annonces à risque (paiement sécurisé du site, ou main propre avec test si le vendeur est en Île-de-France) : ${risky.perf} % d'une PS5 pour ${eur(risky.t)} (${ITEM[risky.sel.cpu].n} + ${ITEM[risky.sel.gpu].n}). Ajoute « avec risque » à ta question pour la voir en détail.`:"";
-      if(!opts.length) return {text:`Aucune config complète et compatible sous ${budget} €${safe?" sans annonce à risque":""}. La moins chère coûte ${eur(Math.min(...candidates({pk,safe}).map(x=>x.t)))}.`+alt};
+      if(!opts.length) return {text:`Aucune config complète et compatible sous ${budget} €${safe?" sans annonce à risque":""}. La moins chère${/32 ?go/.test(q)?" en 32 Go":""} coûte ${eur(Math.min(...candidates({pk,safe,gb:/32 ?go/.test(q)?32:0}).map(x=>x.t)))}.`+alt};
       return {text:`Meilleure config sous ${budget} € ${pk?"(main propre quand possible)":"tout livré"}${safe?", sans annonce à risque":""} :\n\n${describe(opts[0],pk)}`+alt,sel:opts[0].sel};
     }
     // 8. meilleure carte graphique
