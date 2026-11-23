@@ -262,7 +262,7 @@ details.why p{margin-top:8px}
 <header style="display:grid;gap:10px">
   <span class="eyebrow">AM4 · DDR4 · <span id="maj">annonces mises à jour automatiquement</span> · prix livrés, frais inclus</span>
   <h1>Mon PC Gaming Évolutif</h1>
-  <p class="muted">Choisis une config toute prête, ou clique sur les pièces pour composer la tienne. Le prix livré, les performances face à la PS5 et la compatibilité se calculent en direct. Les vendeurs à 15 km ou moins sont marqués « près de Vincennes » : c'est l'option la plus sûre, avec une remise en main propre et un test. Ailleurs en Île-de-France, la main propre reste possible si tu peux t'y déplacer.</p>
+  <p class="muted">Choisis une config toute prête, ou clique sur les pièces pour composer la tienne. Le prix livré, les performances face à la PS5 et la compatibilité se calculent en direct. Les vendeurs à 15 km ou moins sont marqués « près de Vincennes » : c'est l'option la plus sûre, avec une remise en main propre et un test. Ailleurs en Île-de-France, la main propre reste possible si un adulte peut t'y accompagner.</p>
   <div class="chips">
     <span class="chip good">Date de relevé sur chaque annonce</span>
     <span class="chip">Livraison et frais compris</span>
@@ -459,7 +459,7 @@ details.why p{margin-top:8px}
       <li>Confirme la réception seulement après avoir testé la pièce : tu as 2 jours sur Vinted et 3 jours sur Leboncoin pour signaler un problème, sinon la vente est validée automatiquement.</li></ul></div>
     <div class="card"><h3>En main propre (près de Vincennes)</h3><ul>
       <li>Vas-y <strong>toujours avec un adulte</strong> (jamais seul chez un inconnu) : chez le vendeur, ou dans un lieu où l'on peut brancher la pièce. Le compte et le paiement Leboncoin / Vinted sont ceux d'un parent (sites réservés aux majeurs).</li>
-      <li>Carte graphique : 10 minutes de jeu ou d'OCCT, en vérifiant la température du GPU (pas le « point chaud », qui monte plus haut) : moins de 85 °C et l'absence d'artefacts.</li>
+      <li>Carte graphique : 10 minutes de jeu ou d'OCCT. La température du GPU doit rester sous 85 °C (regarde « GPU », pas le « point chaud », qui monte plus haut) et l'image ne doit montrer aucun artefact (taches, damiers ou traits de couleur).</li>
       <li>Paiement sur place après le test, avec le paiement sécurisé si le vendeur l'accepte.</li></ul></div>
     <div class="card"><h3>Neuf ou occasion ?</h3><ul>
       <li><strong>Toujours neuf</strong> : alimentation (une mauvaise peut griller tout le PC), carte mère (socket ou connecteurs abîmés, BIOS trop ancien pour les Ryzen 5000), SSD (usure invisible sur une pièce d'occasion).</li>
@@ -881,7 +881,7 @@ CATS.forEach(c=>{
     const lines=[];
     if(i.idx) lines.push(`<span data-gl="${i.id}">${gpuLine(i)}</span>`);
     if(i.where) lines.push(`Où : ${i.where}${i.km?` (≈ ${i.km} km de Vincennes)`:""}`);
-    if(i.age) lines.push(i.age==="?"?"Date de mise en ligne non relevée":`Mise en ligne il y a ${i.age}`);
+    if(i.age) lines.push(i.age==="?"?"Date de mise en ligne non relevée":(/^0\s*j/.test(i.age)?"Mise en ligne le jour du relevé":`Mise en ligne ${i.age} avant le relevé`));
     if(i.seller) lines.push(i.seller==="?"?"Avis du vendeur non relevés : regarde-les sur l'annonce":`Vendeur : ${i.seller}`);
     if(i.src==="lbc"&&i.idf) lines.push(`En main propre${i.km?` (≈ ${i.km} km de Vincennes)`:""} : ${eur(i.price)} (pas de frais, mais pas de protection : teste la pièce avant de payer)`);
     if(i.src==="lbc"||i.src==="vinted") lines.push(`La protection acheteur (0,70 € + 5 % du prix) te rembourse si la pièce n'arrive pas ou ne correspond pas à l'annonce. Elle ne marche que si tu paies sur le site.`);
@@ -1146,7 +1146,7 @@ document.addEventListener("click",e=>{
   const tb=t.closest('[role="tab"]');
   if(tb){showTab(tb.dataset.tab,true);return;}
   const pick=t.closest(".pick");
-  if(pick){sel[pick.dataset.cat]=pick.dataset.id;markPreset();render();return;}
+  if(pick){sel[pick.dataset.cat]=pick.dataset.id;markPreset();render();renderTable();return;}
   const mb=t.closest(".more");
   if(mb){const det=mb.nextElementSibling;const open=det.style.display==="none";det.style.display=open?"grid":"none";mb.setAttribute("aria-expanded",String(open));mb.textContent=mb.dataset.l+(open?" ▴":" ▾");return;}
   const rb=t.closest("[data-res]");
@@ -1163,7 +1163,7 @@ function markPreset(){
 }
 function renderTable(){
   const pk=pickupEl.checked;
-  const rows=PRESETS.map((p,k)=>({p,k,t:total(p.sel,false),tp:total(p.sel,true),perf:perf(p.sel).avg})).sort((a,b)=>(a.p.risky.length>0)-(b.p.risky.length>0)||a.t-b.t);
+  const rows=PRESETS.map((p,k)=>{const S=presetSel(p);return {p,k,t:total(S,false),tp:total(S,true),perf:perf(S).avg};}).sort((a,b)=>(a.p.risky.length>0)-(b.p.risky.length>0)||a.t-b.t);
   document.getElementById("ptable").innerHTML=`<thead><tr><th>Config</th><th>Processeur</th><th>Carte graphique</th><th>RAM</th><th>SSD</th><th>Alim.</th><th class="r">Tout livré</th><th class="r">Main propre IDF</th><th class="r">Perf. / PS5</th><th class="r">€ / point</th></tr></thead><tbody>`+
    rows.map(r=>`<tr class="${r.p.pick?'hl':''}" style="cursor:pointer" data-k="${r.k}" tabindex="0" role="button" aria-label="Charger la config ${r.p.name}"><td><strong>${r.p.name}</strong><div class="small muted">${r.p.tag}</div>${r.p.risky.length?`<div class="small lo">⚠ annonce à vérifier : ${r.p.risky.join(" ; ")}</div>`:""}</td><td>${ITEM[r.p.sel.cpu].n}</td><td>${ITEM[r.p.sel.gpu].n}</td><td>${ITEM[r.p.sel.ram].gb} Go</td><td>${ITEM[r.p.sel.ssd].n.replace(/ \(.*\)/,"")}</td><td>${ITEM[r.p.sel.psu].watt} W</td>
    <td class="r num"><strong>${eur0(r.t)}</strong></td><td class="r num">${eur0(r.tp)}</td><td class="r num ${r.perf<85?'lo':r.perf>=100?'hi':''}">${r.perf} %</td><td class="r num">${((pk?r.tp:r.t)/r.perf).toLocaleString("fr-FR",{maximumFractionDigits:2})} €</td></tr>`).join("")+`</tbody>`;
@@ -1270,7 +1270,7 @@ function applyActions(acts,dry){
       if(it&&it.cat===c&&c in sel){ sel[c]=v; done.push(`${c} → ${it.n}`); } else bad.push(`pièce « ${v} » inconnue pour ${c}`);
     }else if(a.type==="preset"){
       const pr=PRESETS.find(p=>p.name===v);
-      if(pr){ sel={...pr.sel}; done.push(`config « ${pr.name} » chargée`); } else bad.push(`config « ${v} » inconnue`);
+      if(pr){ sel=presetSel(pr); done.push(`config « ${pr.name} » chargée`); } else bad.push(`config « ${v} » inconnue`);
     }else if(a.type==="aller"){
       if(SECTIONS[v]){ goTo=SECTIONS[v]; done.push(`affichage : ${v}`); } else bad.push(`section « ${v} » inconnue`);
     }else if(a.type==="recherche"){
@@ -1413,12 +1413,13 @@ const AI=(()=>{
       const why=riskWhy;
       return {text:(mine.length?"Dans ta config :\n"+mine.map(i=>`⚠ ${i.n} : ${why(i)}`).join("\n"):"Ta config ne contient aucune annonce à risque.")+
         "\n\nToutes les annonces à risque du site :\n"+all.map(i=>`• ${i.n} (${i.where}) : ${why(i)}`).join("\n")+
-        "\n\nRègle : paiement sécurisé Leboncoin ou Vinted uniquement, ou main propre avec test."};
+        "\n\nRègle : paiement sécurisé Leboncoin ou Vinted uniquement, ou main propre avec test, toujours avec un adulte."};
     }
     // 5. améliorer la config pour X €
-    if(/(ma|mon) (config|pc|ordi)/.test(q)&&/ps5|playstation|console/.test(q)&&!amountIn(q)&&!/moins ch|amelior|upgrade|changer|booster|plus puissant|\+ ?\d/.test(q)){
+    if(/(ma|mon) (config|pc|ordi)/.test(q)&&/ps5|playstation|console/.test(q)&&!amountIn(q)&&!/amelior|upgrade|changer|booster|rendre .*plus puissant|\+ ?\d/.test(q)){
       const p=perf(sel), win=p.games.filter(x=>x.fps>=GAMES[p.games.indexOf(x)].ps5).length;
-      return {text:`Ta config : ${p.avg} % d'une PS5 en ${RESN[VIEW.res]} (${settingsLabel()}). ${p.avg>=100?"Elle est plus puissante que la PS5.":"Elle est moins puissante que la PS5."}\nPlus d'images/s que la PS5 dans ${win} jeu(x) sur ${p.games.length} :\n`+p.games.map((x,k)=>`• ${GAMES[k].n} : ≈ ${x.fps} fps (PS5 : ${GAMES[k].ps5})`).join("\n")};
+      const ps5p=+document.getElementById("c-ps5").value||649.99, tt=total(sel,pickupEl.checked)-CATS.filter(c=>c.peri).reduce((x,c)=>x+cost(ITEM[sel[c.key]],pickupEl.checked),0);
+      return {text:`Ta config : ${p.avg} % d'une PS5 en ${RESN[VIEW.res]} (${settingsLabel()}). ${p.avg>=100?"Elle est plus puissante que la PS5.":"Elle est moins puissante que la PS5."}\nPrix du PC (sans écran ni périphériques) : ${eur(tt)} contre ${eur(ps5p)} pour la PS5 (${tt<=ps5p?"moins cher":`${eur0(tt-ps5p)} de plus`} ; voir l'amortissement dans le calculateur).\nPlus d'images/s que la PS5 dans ${win} jeu(x) sur ${p.games.length} :\n`+p.games.map((x,k)=>`• ${GAMES[k].n} : ≈ ${x.fps} fps (PS5 : ${GAMES[k].ps5})`).join("\n")};
     }
     if(/amelior|upgrade|changer|booster|rendre .*plus puissant|\+ ?\d/.test(q)){
       const extra=amountIn(q)||50;
@@ -1443,6 +1444,11 @@ const AI=(()=>{
       const opts=budget?all.filter(x=>x.t<=budget):all;
       if(!opts.length) return {text:`Aucune config sous ${budget} € n'atteint ${target} % d'une PS5${safe?" sans annonce à risque":""}. La moins chère qui y arrive :\n\n${describe(all[0],pk)}`,sel:all[0].sel};
       return {text:`La config la moins chère qui atteint ${target} % d'une PS5${safe?" (sans annonce à risque)":""} :\n\n${describe(opts[0],pk)}`,sel:opts[0].sel};
+    }
+    // 6 bis. le processeur bride-t-il la carte ?
+    if(/bride|goulot|bottleneck|limite/.test(q)&&!amountIn(q)){
+      const p=perf(sel), b=balance(sel,p);
+      return {text:`${b.head}.\nCarte graphique utilisée à ${b.use} % en ${RESN[VIEW.res]} (${settingsLabel()}).`+(b.L.length?"\n"+b.L.slice(0,2).map(x=>"• "+x[1]).join("\n"):"")};
     }
     // 7. meilleure config pour un budget (sauf si on parle d'une carte graphique seule)
     const gpuQ=/carte graphique|\bgpu\b|\bcg\b/.test(q)&&!/config|pc complet|tour/.test(q);
@@ -1546,7 +1552,7 @@ function bubble(role,text){
   const d=document.createElement("div"); d.className="msg "+role; d.textContent=text; log.appendChild(d); log.scrollTop=log.scrollHeight; return d;
 }
 function addCopy(d,text){const b=document.createElement("button");b.type="button";b.className="cp";b.textContent="Copier";b.addEventListener("click",()=>{copyText(text,"Réponse copiée ✔");b.textContent="Copié ✔";});d.appendChild(b);}
-function addLoad(d,S){const b=document.createElement("button");b.type="button";b.className="cp";b.textContent="➜ Charger cette config dans le configurateur";b.addEventListener("click",()=>{sel={...S};markPreset();render();renderRank();showTab("config");b.textContent="Config chargée ✔";});d.appendChild(b);}
+function addLoad(d,S){const b=document.createElement("button");b.type="button";b.className="cp";b.textContent="➜ Charger cette config dans le configurateur";b.addEventListener("click",()=>{sel=presetSel({sel:S});markPreset();render();renderTable();renderRank();showTab("config");b.textContent="Config chargée ✔";});d.appendChild(b);}
 function addDeep(d,q){const b=document.createElement("button");b.type="button";b.className="cp";b.textContent="Approfondir avec Claude";b.addEventListener("click",()=>{b.remove();claudeAsk(q);});d.appendChild(b);}
 async function ask(q){
   q=(q||"").trim().slice(0,1500); if(!q||cctl) return;
