@@ -288,15 +288,15 @@ details.why p{margin-top:8px}
   <div class="presets" id="presets" role="group" aria-label="Configs toutes prêtes"></div>
   <div class="filters" role="search" aria-label="Filtrer les offres">
     <div class="frow">
-      <input type="search" id="f-q" placeholder="Rechercher : RX 6800, Vengeance, Paris…" aria-label="Rechercher une pièce" autocomplete="off">
+      <input type="search" id="f-q" autocomplete="off" placeholder="Rechercher : RX 6800, Vengeance, Paris…" aria-label="Rechercher une pièce" autocomplete="off">
       <label class="small muted" for="f-max">Prix max par pièce</label>
-      <select id="f-max"><option value="0">Sans limite</option><option value="50">50 €</option><option value="100">100 €</option><option value="150">150 €</option><option value="200">200 €</option><option value="300">300 €</option><option value="400">400 €</option></select>
+      <select id="f-max" autocomplete="off"><option value="0">Sans limite</option><option value="50">50 €</option><option value="100">100 €</option><option value="150">150 €</option><option value="200">200 €</option><option value="300">300 €</option><option value="400">400 €</option></select>
     </div>
     <div class="frow">
-      <label class="toggle"><input type="checkbox" id="f-dimm" checked> <span>RAM de <strong>PC fixe vérifiée</strong> uniquement (pas de portable ni de serveur)</span></label>
-      <label class="toggle"><input type="checkbox" id="f-slots"> <span>Cartes mères à 4 emplacements RAM</span></label>
-      <label class="toggle"><input type="checkbox" id="f-idf"> <span>Occasion près de Vincennes uniquement</span></label>
-      <label class="toggle"><input type="checkbox" id="f-safe"> <span>Masquer les annonces risquées</span></label>
+      <label class="toggle"><input type="checkbox" id="f-dimm" autocomplete="off" checked> <span>RAM de <strong>PC fixe vérifiée</strong> uniquement (pas de portable ni de serveur)</span></label>
+      <label class="toggle"><input type="checkbox" id="f-slots" autocomplete="off"> <span>Cartes mères à 4 emplacements RAM</span></label>
+      <label class="toggle"><input type="checkbox" id="f-idf" autocomplete="off"> <span>Occasion près de Vincennes uniquement</span></label>
+      <label class="toggle"><input type="checkbox" id="f-safe" autocomplete="off"> <span>Masquer les annonces risquées</span></label>
     </div>
     <span class="small muted" id="f-count"></span>
   </div>
@@ -316,14 +316,14 @@ details.why p{margin-top:8px}
         <span class="copied" id="copy-ok" aria-live="polite"></span>
       </div>
       <textarea class="copyfall" id="copy-fall" hidden aria-label="Texte à copier"></textarea>
-      <label class="toggle" for="pickup"><input type="checkbox" id="pickup"> <span>Main propre en Île-de-France quand c'est possible : ni frais ni livraison, avec un test sur place (vérifie que tu peux t'y déplacer).</span></label>
+      <label class="toggle" for="pickup"><input type="checkbox" id="pickup"> <span>Main propre en Île-de-France quand c'est possible : ni frais ni livraison, avec un test sur place (vérifie que tu peux t'y rendre avec un adulte).</span></label>
       <div class="viewctl">
         <span class="eyebrow">Réglages du calcul des FPS</span>
         <div class="seg" role="group" aria-label="Résolution"><button type="button" data-res="0">1080p</button><button type="button" data-res="1">1440p</button><button type="button" data-res="2">4K</button></div>
         <div class="ctlrow">
-          <label class="ctl">Upscaling <select id="upsc"><option value="0">Natif (sans)</option><option value="1" selected>Qualité</option><option value="2">Équilibré</option><option value="3">Performance</option></select></label>
-          <label class="toggle"><input type="checkbox" id="rt"> <span>Ray tracing</span></label>
-          <label class="toggle"><input type="checkbox" id="fg"> <span>Génération d'images</span></label>
+          <label class="ctl">Upscaling <select id="upsc" autocomplete="off"><option value="0">Natif (sans)</option><option value="1" selected>Qualité</option><option value="2">Équilibré</option><option value="3">Performance</option></select></label>
+          <label class="toggle"><input type="checkbox" id="rt" autocomplete="off"> <span>Ray tracing</span></label>
+          <label class="toggle"><input type="checkbox" id="fg" autocomplete="off"> <span>Génération d'images</span></label>
         </div>
         <span class="small muted" id="t-tech"></span>
       </div>
@@ -459,7 +459,7 @@ details.why p{margin-top:8px}
       <li>Demande une photo de la pièce avec ton pseudo sur un papier, et pour une carte graphique une capture d'un test (OCCT ou FurMark) avec les températures.</li>
       <li>Confirme la réception seulement après avoir testé la pièce : tu as 2 jours sur Vinted et 3 jours sur Leboncoin pour signaler un problème, sinon la vente est validée automatiquement.</li></ul></div>
     <div class="card"><h3>En main propre (près de Vincennes)</h3><ul>
-      <li>Rendez-vous chez le vendeur, ou dans un lieu où l'on peut brancher la pièce.</li>
+      <li>Vas-y <strong>toujours avec un adulte</strong> (jamais seul chez un inconnu) : chez le vendeur, ou dans un lieu où l'on peut brancher la pièce. Le compte et le paiement Leboncoin / Vinted sont ceux d'un parent (sites réservés aux majeurs).</li>
       <li>Carte graphique : 10 minutes de jeu ou d'OCCT, en vérifiant la température du GPU (pas le « point chaud », qui monte plus haut) : moins de 85 °C et l'absence d'artefacts.</li>
       <li>Paiement sur place après le test, avec le paiement sécurisé si le vendeur l'accepte.</li></ul></div>
     <div class="card"><h3>Neuf ou occasion ?</h3><ul>
@@ -1000,9 +1000,9 @@ function compat(sel){
   else L.push(["ok","Emplacements RAM",`${ram.sticks} barrette(s) pour ${mb.slots==="?"?"un nombre inconnu d'":mb.slots+" "}emplacement(s)${mb.slots===4&&ram.sticks===2?" : 2 restent libres pour évoluer":""}.`]);
   const gx=GPUX[gpu.id]||[gpu.len||300,gpu.pins8||2];
   const pins=PSUPINS[psu.id]??psu.pins??"?";
-  if(pins==="?") L.push([gx[1]>=3?"warn":"ok","Câbles carte graphique",gx[1]>=3?`La carte demande ${gx[1]} connecteurs 8 broches : vérifie que l'alimentation en a assez.`:`${gx[1]} connecteur(s) 8 broches nécessaires : vérifie que l'alimentation les fournit.`]);
-  else if(gx[1]>pins) L.push(["bad","Câbles carte graphique",`La carte demande ${gx[1]} connecteurs 8 broches, l'alimentation n'en a que ${pins}.${psu.id!=="cx750"?" Prends la CX750 (3 connecteurs).":""}`]);
-  else L.push(["ok","Câbles carte graphique",`${gx[1]} connecteur(s) 8 broches nécessaires, ${pins} fournis.`]);
+  if(pins==="?") L.push([gx[1]>=3?"warn":"ok","Câbles carte graphique",gx[1]>=3?`La carte demande ${gx[1]} câbles PCIe 6+2 broches : vérifie que l'alimentation en a assez.`:`${gx[1]} câble(s) PCIe 6+2 broches nécessaires : vérifie que l'alimentation les fournit.`]);
+  else if(gx[1]>pins) L.push(["bad","Câbles carte graphique",`La carte demande ${gx[1]} câbles PCIe 6+2 broches, l'alimentation n'en a que ${pins}.${psu.id!=="cx750"?" Prends la CX750 (3 câbles PCIe).":""}`]);
+  else L.push(["ok","Câbles carte graphique",`${gx[1]} câble(s) PCIe 6+2 broches nécessaires, ${pins} fournis par l'alimentation.`]);
   const need=(gpu.w+cpu.watt+75)*1.5, rec=GPUREC[gpu.id]||gpu.psurec||0;
   if(psu.watt<need) L.push(["bad","Puissance alimentation",`${psu.watt} W pour environ ${Math.round(gpu.w+cpu.watt+75)} W au maximum : il faut au moins ${Math.ceil(need/50)*50} W.`]);
   else if(psu.watt<rec) L.push(["warn","Puissance alimentation",`${psu.watt} W : suffisant pour ≈ ${Math.round(gpu.w+cpu.watt+75)} W au maximum, mais le fabricant de la carte conseille ${rec} W (pics de consommation).${psu.id!=="cx750"&&rec<=750?" Prends la CX750.":rec>750?" Aucune alimentation de la liste n'atteint ce conseil : la CX750 fonctionne, mais une 850 W serait plus sereine.":""}`]);
@@ -1153,10 +1153,12 @@ document.addEventListener("click",e=>{
   const rb=t.closest("[data-res]");
   if(rb){VIEW.res=+rb.dataset.res;render();renderTable();return;}
   const pb=t.closest("#presets button");
-  if(pb){sel={...PRESETS[pb.dataset.k].sel};markPreset();render();return;}
+  if(pb){sel=presetSel(PRESETS[pb.dataset.k]);markPreset();render();return;}
   const tr=t.closest("#ptable tbody tr");
-  if(tr){sel={...PRESETS[tr.dataset.k].sel};markPreset();render();showTab("config");document.getElementById("h-build").scrollIntoView({behavior:"smooth"});}
+  if(tr){sel=presetSel(PRESETS[tr.dataset.k]);markPreset();render();showTab("config");document.getElementById("h-build").scrollIntoView({behavior:"smooth"});}
 });
+/* charge une config prête en gardant les choix d'écran, clavier, Windows… */
+function presetSel(P){const S={...P.sel};Object.keys(EXTRA).forEach(k=>{if(k!=="paste"&&sel[k])S[k]=sel[k];});return S;}
 function markPreset(){
   presetsEl.querySelectorAll("button").forEach(b=>{const p=PRESETS[b.dataset.k]; b.classList.toggle("on",CORE.every(k=>p.sel[k]===sel[k]));});
 }
